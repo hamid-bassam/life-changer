@@ -1,13 +1,21 @@
-import clsx from "clsx";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 
+import { GeistMono } from "geist/font/mono";
+import { GeistSans } from "geist/font/sans";
+import { Anek_Telugu } from "next/font/google";
 import { Footer } from "../features/layout/Footer";
 import { Header } from "../features/layout/Header";
 import { ThemeProvider } from "../features/theme/ThemeProvider";
+import { cn } from "../lib/utils";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+
+
+
+const AnekTelugu = Anek_Telugu({
+  subsets: ["latin"],
+  variable: "--font-caption",
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -19,10 +27,17 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+
+
   return (
     <html lang="en" className="h-full">
 
-      <body className={clsx(inter.className, "bg-background h-full")}>
+      <body className={cn(GeistSans.variable,
+        GeistMono.variable,
+        AnekTelugu.variable,
+        "font-sans h-full bg-background text-foreground"
+      )}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <div className="flex flex-col h-full">
             <Header />

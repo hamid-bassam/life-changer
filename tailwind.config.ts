@@ -7,7 +7,7 @@ const config = {
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
-	],
+  ],
   prefix: "",
   theme: {
     container: {
@@ -16,6 +16,11 @@ const config = {
       screens: {
         "2xl": "1400px",
       },
+    },
+    fontFamily: {
+      mono: ['var(--font-geist-mono)'],
+      sans: ['var(--font-geist-sans)'],
+      caption: ['var(--font-caption)'],
     },
     extend: {
       colors: {
