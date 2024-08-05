@@ -1,5 +1,10 @@
+import clsx from "clsx";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+
+import { Footer } from "../features/layout/Footer";
+import { Header } from "../features/layout/Header";
+import { ThemeProvider } from "../features/theme/ThemeProvider";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -15,8 +20,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html lang="en" className="h-full">
+
+      <body className={clsx(inter.className, "bg-background h-full")}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <div className="flex flex-col h-full">
+            <Header />
+            <div className="flex-1 max-w-lg m-auto py-10 w-full">
+              {children}
+            </div>
+            <Footer />
+          </div>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
