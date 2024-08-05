@@ -25,7 +25,6 @@ export async function GET() {
       }
     });
   }
-  console.log("user", dbUser);
 
   return NextResponse.redirect("http://localhost:3000/");
 }
