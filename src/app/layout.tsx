@@ -3,8 +3,6 @@ import type { Metadata } from "next";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import { Anek_Telugu } from "next/font/google";
-import { Footer } from "../features/layout/Footer";
-import { Header } from "../features/layout/Header";
 import { ThemeProvider } from "../features/theme/ThemeProvider";
 import { cn } from "../lib/utils";
 import "./globals.css";
@@ -12,7 +10,7 @@ import "./globals.css";
 
 
 
-const AnekTelugu = Anek_Telugu({
+export const AnekTelugu = Anek_Telugu({
   subsets: ["latin"],
   variable: "--font-caption",
 });
@@ -40,11 +38,11 @@ export default function RootLayout({
       )}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <div className="flex flex-col h-full">
-            <Header />
-            <div className="flex-1 max-w-lg m-auto py-10 w-full">
+
+            <div className="flex-1 max-w-lg m-auto  w-full">
               {children}
             </div>
-            <Footer />
+
           </div>
         </ThemeProvider>
       </body>
