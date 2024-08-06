@@ -1,14 +1,11 @@
 "use server";
+import { Prisma } from "@prisma/client";
+
 import prisma from "../lib/prisma";
 
-export async function createNote() {
+export async function createNote(data: Prisma.NoteCreateInput) {
   const note = await prisma.note.create({
-    data: {
-      title: "New Note",
-      content: "New Note Content",
-
-    }
+    data: data
   });
-
   return note;
 }
