@@ -9,14 +9,30 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
+
 model User {
-  id        Int      @id @default(autoincrement())
-  kindeId   String   @unique
-  email     String   @unique
+  id        Int    @id @default(autoincrement())
+  kindeId   String @unique
+  email     String @unique
   firstName String
   lastName  String
+  notes     Note[] // Relation avec le modèle Note
+}
+
+model Note {
+  id      String @id @default(uuid())
+  title   String
+  content String // Peut être utilisé pour stocker le contenu des notes en format HTML/Markdown/Plain Text
+
+  // Relation avec User
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    Int?
 }

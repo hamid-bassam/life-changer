@@ -6,6 +6,7 @@ import { Anek_Telugu } from "next/font/google";
 import { ThemeProvider } from "../features/theme/ThemeProvider";
 import { cn } from "../lib/utils";
 import "./globals.css";
+import { Providers } from "./providers";
 
 
 
@@ -43,7 +44,10 @@ export default function RootLayout({
         
              w-full">
               {/* max-w-lg m-auto  */}
-              {children}
+              <Providers>
+                {children}
+              </Providers>
+
             </div>
 
           </div>
