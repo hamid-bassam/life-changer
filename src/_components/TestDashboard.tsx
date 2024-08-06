@@ -8,6 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Input } from "../components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "../components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../components/ui/tooltip";
+import { ThemeToggle } from "../features/theme/ThemeToggle";
 
 export function TestDashboard() {
   return (
@@ -102,7 +103,7 @@ export function TestDashboard() {
       </aside><div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
 
         <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-
+          <ThemeToggle />
           <Sheet>
             <SheetTrigger asChild>
               <Button size="icon" variant="outline" className="sm:hidden">
