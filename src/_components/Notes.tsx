@@ -12,7 +12,7 @@ export const Notes = async () => {
   const user = await getUser();
   const notes: Note[] = await prisma.note.findMany({
     where: {
-      userId: 1
+      userId: user?.id
     }
   });
   if (!notes) {

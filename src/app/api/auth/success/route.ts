@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import prisma from "../../../../lib/prisma";
 
 
+
 export async function GET() {
   const { getUser } = getKindeServerSession();
   const user = await getUser();
@@ -18,6 +19,7 @@ export async function GET() {
   if (!dbUser) {
     dbUser = await prisma.user.create({
       data: {
+        id: user.id,
         kindeId: user.id,
         firstName: user.given_name ?? "",
         lastName: user.family_name ?? "",

@@ -3,17 +3,15 @@ import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { Suspense } from "react";
 
 import { Spinner } from "@nextui-org/react";
+
+import { redirect } from "next/navigation";
 import { Notes } from "../../../_components/Notes";
 export default async function NotesPage() {
 
   const { isAuthenticated, getUser } = getKindeServerSession();
   const isUserAuthenticated = await isAuthenticated();
   if (!isUserAuthenticated) {
-    return (
-      <div>
-        <div>Not Authenticated</div>
-      </div>
-    )
+    redirect('/');
   }
   return (
 
