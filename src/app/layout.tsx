@@ -39,7 +39,10 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <div className="flex flex-col h-full">
 
-            <div className="flex-1 max-w-lg m-auto  w-full">
+            <div className="flex-1 
+        
+             w-full">
+              {/* max-w-lg m-auto  */}
               {children}
             </div>
 
