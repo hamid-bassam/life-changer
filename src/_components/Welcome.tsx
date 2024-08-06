@@ -23,7 +23,7 @@ export function Welcome({ children }: { children: React.ReactNode }) {
           The App that will change your life.
         </div>
         <div className="font-extralight text-base md:text-4xl dark:text-neutral-200 py-4">
-          prioritize your life.
+          It&rsquo;s time to take the lead.
         </div>
 
         {children}
