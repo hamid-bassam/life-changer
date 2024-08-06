@@ -1,15 +1,15 @@
-import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
-
 import prisma from '@/lib/prisma';
+import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
+import { Note } from '@prisma/client';
 import { notFound } from "next/navigation";
-import { Card } from '../components/ui/card';
+import { NoteCard } from './NoteCard';
 
 export const Notes = async () => {
 
   const { getUser } = getKindeServerSession();
 
   const user = await getUser();
-  const notes = await prisma.note.findMany({
+  const notes: Note[] = await prisma.note.findMany({
     where: {
       userId: 1
     }
@@ -20,7 +20,8 @@ export const Notes = async () => {
   else {
 
     return (
-      <div>{notes.map(n => (<Card key={n.id}>{n.title}</Card>))}</div>
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
+        {notes.map(n => (<NoteCard key={n.id} note={n} />))}</div>
     )
   }
 

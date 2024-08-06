@@ -30,12 +30,12 @@ export default function RootLayout({
 
 
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" >
 
       <body className={cn(GeistSans.variable,
         GeistMono.variable,
         AnekTelugu.variable,
-        "font-sans h-full bg-background text-foreground"
+        "font-sans min-h-screen bg-background text-foreground"
       )}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <div className="flex flex-col h-full">
