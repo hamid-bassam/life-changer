@@ -9,7 +9,7 @@ export const TopNavMenu = () => {
   return (
     <nav className="flex flex-col items-center md:pt-0 gap-4 px-2 sm:py-5">
 
-      <LifeChangerLink />
+      <LifeChangerLink className="justify-center" />
 
 
       <DashboardTooltip />
