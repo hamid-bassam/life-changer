@@ -9,7 +9,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       <SideMenu />
       <div className="flex flex-col flex-grow sm:gap-4 sm:py-4 sm:pl-14">
         <AppHeader />
-        <main className="flex flex-col flex-grow">{children}</main>
+        <main className="flex flex-col flex-grow pt-3">{children}</main>
       </div >
     </div >
 

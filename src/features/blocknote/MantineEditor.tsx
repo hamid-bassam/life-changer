@@ -6,12 +6,14 @@ import { useCreateBlockNote } from "@blocknote/react";
 // import * as Form from "../../../components/ui/form";
 import { PartialBlock } from "@blocknote/core";
 import { Note } from "@prisma/client";
+import { Label } from "@radix-ui/react-dropdown-menu";
 import { Save } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { createNote, editNote } from "../../actions/actions";
 import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
 
 
 
@@ -138,7 +140,7 @@ export default function MantineEditor({ userId, note }: { userId?: string, note?
   ];
   //load content from db 
   const [content, setContent] = useState<PartialBlock[]>(note ? note.document as PartialBlock[] : initBlocks);
-
+  const [title, SetTitle] = useState<string>(note ? note.title as string : '');
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     initialContent: content,
@@ -149,10 +151,13 @@ export default function MantineEditor({ userId, note }: { userId?: string, note?
   const myTheme = blockTheme === "dark" ? darkTheme : lightTheme;
   // Renders the editor instance using a React component.
 
+  const handleChangeTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    SetTitle(e.target.value);
+  }
   const handleSubmitNote = async () => {
 
     const noteInput = {
-      title: "we'll see how this goes",
+      title,
       document: editor.document,
       userId,
     }
@@ -160,19 +165,24 @@ export default function MantineEditor({ userId, note }: { userId?: string, note?
       await createNote(noteInput);
   }
   return (
-    <>
-
-      <div className='flex flex-row justify-between items-center pb-4'>
+    <div className="flex flex-col gap-4 ">
+      {/* <div className='flex flex-row justify-between items-center pb-4'>
         <p>
           {id}
           {sessionStorage.getItem('userId')}
         </p>
+
+      </div> */}
+
+      <div className="inline-flex gap-2 items-center justify-start">
+        <Label className="text-primary font-bold" >Title : </Label>
+        <Input className="flex flex-1" placeholder="Title" value={title} onChange={handleChangeTitle} />
         <Suspense fallback={<div>Loading...</div>}>
           <Button onClick={() => handleSubmitNote()} className="ml-auto " variant={'outline'}><Save /></Button>
         </Suspense>
-
       </div>
+
       <BlockNoteView onChange={() => setContent(editor.document)} editor={editor} theme={myTheme} />
-    </>
+    </div>
   );
 }
