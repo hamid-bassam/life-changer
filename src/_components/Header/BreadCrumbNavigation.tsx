@@ -14,22 +14,9 @@ export const BreadCrumbNavigation = () => {
     <Breadcrumb className="hidden md:flex">
 
       <BreadcrumbList>
-        {/* {paths.map((path, index) => (
-          <>
-          <BreadcrumbItem key={index}>
-          <BreadcrumbLink asChild>
-                <Link href="#">{path}</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-
-            {index < paths.length - 1 && <BreadcrumbSeparator />}
-
-            </>
-            ))} */}
-
         {/** iterate over paths except last one */}
         {paths.slice(0, paths.length - 1).map((path, index) => (
-          <>
+          <div key={index} className="flex items-center gap-2">
             <BreadcrumbItem key={index}>
               <BreadcrumbLink asChild>
                 <Link href={`/${paths.slice(0, index + 1).join('/')}`}>
@@ -37,8 +24,8 @@ export const BreadCrumbNavigation = () => {
                 </Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbSeparator />
-          </>
+            <BreadcrumbSeparator key={index} />
+          </div>
         ))}
 
         {/** last path */}

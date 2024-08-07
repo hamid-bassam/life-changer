@@ -1,21 +1,22 @@
-import prisma from '@/lib/prisma';
+
 import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
 
 import { notFound } from "next/navigation";
+import prisma from '../lib/prisma';
 import { AddButton } from './AddButton';
-import { NoteCard } from './NoteCard';
-
-export const Notes = async () => {
+import { GoalCard } from './GoalCard';
+export const Goals = async () => {
 
   const { getUser } = getKindeServerSession();
 
   const user = await getUser();
-  const notes = await prisma.note.findMany({
+
+  const goals = await prisma.goal.findMany({
     where: {
       userId: user?.id
     }
   });
-  if (!notes) {
+  if (!goals) {
     notFound();
   }
   else {
@@ -23,7 +24,7 @@ export const Notes = async () => {
     return (
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6 ">
         <AddButton />
-        {notes.map(n => (<NoteCard key={n.id} note={n} />))}
+        {goals.map(g => (<GoalCard key={g.id} goal={g} />))}
 
       </div>
     )
