@@ -49,7 +49,7 @@ export const BurgerMenu = () => {
             Dashboard
           </Link>
           <Link
-            href="dashboard/notes"
+            href="/dashboard/notes"
             className="flex items-center gap-4 px-2.5  hover:text-foreground"
             onTouchEnd={(e) => handleLinkTouch(e, '/dashboard/notes')}
           >
@@ -57,7 +57,7 @@ export const BurgerMenu = () => {
             Notes
           </Link>
           <Link
-            href="dashboard/goals"
+            href="/dashboard/goals"
             className="flex items-center gap-4 px-2.5  hover:text-foreground"
             onTouchEnd={(e) => handleLinkTouch(e, '/dashboard/goals')}
           >
@@ -65,7 +65,7 @@ export const BurgerMenu = () => {
             Goals
           </Link>
           <Link
-            href="dashboard/overview"
+            href="/dashboard/overview"
             className="flex items-center gap-4 px-2.5  hover:text-foreground"
             onTouchEnd={(e) => handleLinkTouch(e, '/dashboard/overview')}
           >
@@ -73,7 +73,7 @@ export const BurgerMenu = () => {
             OverView
           </Link>
           <Link
-            href="dashboard/settings"
+            href="/dashboard/settings"
             className="flex items-center gap-4 px-2.5  hover:text-foreground"
             onTouchEnd={(e) => handleLinkTouch(e, '/dashboard/settings')}
           >

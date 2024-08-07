@@ -23,7 +23,7 @@ export const Goals = async () => {
 
     return (
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6 ">
-        <AddButton />
+        <AddButton link='goals/create' />
         {goals.map(g => (<GoalCard key={g.id} goal={g} />))}
 
       </div>
