@@ -27,7 +27,7 @@ model Note {
   id       String @id @default(uuid())
   title    String
   document Json?  @db.Json // Peut être utilisé pour stocker le contenu des notes en format HTML/Markdown/Plain Text
-
+  htmlContent String? 
   // Relation avec User
 
   // Timestamps

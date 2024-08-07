@@ -155,10 +155,11 @@ export default function MantineEditor({ userId, note }: { userId?: string, note?
     SetTitle(e.target.value);
   }
   const handleSubmitNote = async () => {
-
+    const html = await editor.blocksToFullHTML(editor.document);
     const noteInput = {
       title,
       document: editor.document,
+      htmlContent: html,
       userId,
     }
     id !== 'create' ? await editNote(id as string, noteInput) :

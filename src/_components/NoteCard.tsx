@@ -4,7 +4,7 @@
 import { Note } from '@prisma/client';
 import { Edit, Trash } from 'lucide-react';
 import Link from 'next/link';
-import { Card, CardHeader, CardTitle } from "../components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 
 import {
   Dialog,
@@ -26,15 +26,13 @@ export type NoteCardProps = {
 };
 
 export const NoteCard = async (props: NoteCardProps) => {
-  // const editor = useCreateBlockNote({
-  //   initialContent: props.note.document as PartialBlock[],
-  // });
+
   const [isDeleting, setIsDeleting] = useState(false);
-  // const html = await editor.blocksToFullHTML(editor.document);
+
 
   return (
     <Card
-      className="sm:col-span-2 " x-chunk="dashboard-05-chunk-0"
+      className="sm:col-span-2  max-h-64 overflow-y-auto" x-chunk="dashboard-05-chunk-0"
     >
       <CardHeader className='pt-2 pr-2'>
         <div className='flex flex-col gap-4'>
@@ -92,7 +90,7 @@ export const NoteCard = async (props: NoteCardProps) => {
         </div>
 
       </CardHeader>
-      {/* <CardDescription className='p-4'> <div dangerouslySetInnerHTML={{ __html: html }} /></CardDescription> */}
+      <CardDescription className='p-4'> <div dangerouslySetInnerHTML={{ __html: props.note.htmlContent || '' }} /></CardDescription>
 
 
     </Card>
