@@ -17,14 +17,14 @@ export const BreadCrumbNavigation = () => {
         {/** iterate over paths except last one */}
         {paths.slice(0, paths.length - 1).map((path, index) => (
           <div key={index} className="flex items-center gap-2">
-            <BreadcrumbItem key={index}>
+            <BreadcrumbItem>
               <BreadcrumbLink asChild>
                 <Link href={`/${paths.slice(0, index + 1).join('/')}`}>
                   {path.charAt(0).toUpperCase() + path.slice(1)}
                 </Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbSeparator key={index} />
+            <BreadcrumbSeparator />
           </div>
         ))}
 

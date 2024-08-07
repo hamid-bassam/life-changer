@@ -25,7 +25,7 @@ export type NoteCardProps = {
   note: Note
 };
 
-export const NoteCard = async (props: NoteCardProps) => {
+export const NoteCard = (props: NoteCardProps) => {
 
   const [isDeleting, setIsDeleting] = useState(false);
 
