@@ -119,9 +119,25 @@ export default function MantineEditor({ userId, note }: { userId?: string, note?
 
   const router = useParams();
   const { id } = router;
-
+  const initBlocks: PartialBlock[] = [
+    {
+      type: "paragraph",
+      content: "Welcome to this demo!",
+    },
+    {
+      type: "heading",
+      content: "This is a heading block",
+    },
+    {
+      type: "paragraph",
+      content: "This is a paragraph block",
+    },
+    {
+      type: "paragraph",
+    },
+  ];
   //load content from db 
-  const [content, setContent] = useState<PartialBlock[]>(note ? note.document as PartialBlock[] : []);
+  const [content, setContent] = useState<PartialBlock[]>(note ? note.document as PartialBlock[] : initBlocks);
 
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
