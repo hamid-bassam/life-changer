@@ -7,7 +7,7 @@ export const NotesTooltip = () => {
     <Tooltip>
       <TooltipTrigger asChild>
         <Link
-          href="dashboard/notes"
+          href="/dashboard/notes"
           className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-primary   md:h-8 md:w-8"
         >
           <PenSquare className="h-5 w-5" />

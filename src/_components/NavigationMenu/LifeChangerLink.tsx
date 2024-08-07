@@ -7,7 +7,7 @@ export const LifeChangerLink = ({ className, children }: { className: string, ch
 
   return (
     <Link
-      href="#"
+      href="/dashboard"
       className={cn("group flex  flex-start shrink-0 items-center  h-16 w-16 text-base", className)}
     >
       <Image src={logo.src} className=" transition-all group-hover:scale-110 " alt="LifeChanger" width={40}
