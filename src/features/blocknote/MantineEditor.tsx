@@ -174,7 +174,7 @@ export default function MantineEditor({ userId, note }: { userId?: string, note?
 
       </div> */}
 
-      <div className="inline-flex gap-2 items-center justify-start">
+      <div className="flex gap-2 items-center justify-start pt-1">
         <Label className="text-primary font-bold" >Title : </Label>
         <Input className="flex flex-1" placeholder="Title" value={title} onChange={handleChangeTitle} />
         <Suspense fallback={<div>Loading...</div>}>
