@@ -4,11 +4,13 @@ import { BlockNoteView, Theme, lightDefaultTheme } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 // import * as Form from "../../../components/ui/form";
+import { PartialBlock } from "@blocknote/core";
+import { Note } from "@prisma/client";
 import { Save } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useParams } from "next/navigation";
-import { Suspense } from "react";
-import { createNote } from "../../actions/actions";
+import { Suspense, useState } from "react";
+import { createNote, editNote } from "../../actions/actions";
 import { Button } from "../../components/ui/button";
 
 
@@ -113,15 +115,19 @@ const darkTheme = {
   fontFamily: "Helvetica Neue, sans-serif",
 } satisfies Theme;
 // Our <Editor> component we can reuse later
-export default function MantineEditor({ userId }: { userId?: string }) {
+export default function MantineEditor({ userId, note }: { userId?: string, note?: Note | null }) {
 
   const router = useParams();
   const { id } = router;
 
-
+  //load content from db 
+  const [content, setContent] = useState<PartialBlock[]>(note ? note.document as PartialBlock[] : []);
 
   // Creates a new editor instance.
-  const editor = useCreateBlockNote();
+  const editor = useCreateBlockNote({
+    initialContent: content,
+  }
+  );
   const theme = useTheme();
   const blockTheme = theme.theme === "dark" ? "dark" : "light";
   const myTheme = blockTheme === "dark" ? darkTheme : lightTheme;
@@ -134,7 +140,8 @@ export default function MantineEditor({ userId }: { userId?: string }) {
       document: editor.document,
       userId,
     }
-    await createNote(noteInput);
+    id !== 'create' ? await editNote(id as string, noteInput) :
+      await createNote(noteInput);
   }
   return (
     <>
@@ -149,7 +156,7 @@ export default function MantineEditor({ userId }: { userId?: string }) {
         </Suspense>
 
       </div>
-      <BlockNoteView editor={editor} theme={myTheme} />
+      <BlockNoteView onChange={() => setContent(editor.document)} editor={editor} theme={myTheme} />
     </>
   );
 }

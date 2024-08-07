@@ -1,6 +1,7 @@
 import { Note } from '@prisma/client';
-import { Button } from "../components/ui/button";
-import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card";
+import { Edit } from 'lucide-react';
+import Link from 'next/link';
+import { Card, CardHeader, CardTitle } from "../components/ui/card";
 export type NoteCardProps = {
   note: Note
 };
@@ -10,15 +11,17 @@ export const NoteCard = (props: NoteCardProps) => {
     <Card
       className="sm:col-span-2" x-chunk="dashboard-05-chunk-0"
     >
-      <CardHeader className="pb-3">
-        <CardTitle>{props.note.title}</CardTitle>
-        <CardDescription className="max-w-lg text-balance leading-relaxed">
-          {props.note.content}
-        </CardDescription>
+      <CardHeader>
+        <div className='flex'>
+
+          <CardTitle>{props.note.title}</CardTitle>
+          <Link href={`note/${props.note.id}`} className="ml-auto">
+            <Edit className="ml-auto" />
+          </Link>
+        </div>
+
       </CardHeader>
-      <CardFooter>
-        <Button>Update</Button>
-      </CardFooter>
+
     </Card>
 
   );
