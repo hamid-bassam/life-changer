@@ -4,7 +4,12 @@ import { BlockNoteView, Theme, lightDefaultTheme } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 // import * as Form from "../../../components/ui/form";
+import { Save } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useParams } from "next/navigation";
+import { Suspense } from "react";
+import { createNote } from "../../actions/actions";
+import { Button } from "../../components/ui/button";
 
 
 
@@ -108,12 +113,43 @@ const darkTheme = {
   fontFamily: "Helvetica Neue, sans-serif",
 } satisfies Theme;
 // Our <Editor> component we can reuse later
-export default function MantineEditor() {
+export default function MantineEditor({ userId }: { userId?: string }) {
+
+  const router = useParams();
+  const { id } = router;
+
+
+
   // Creates a new editor instance.
   const editor = useCreateBlockNote();
   const theme = useTheme();
   const blockTheme = theme.theme === "dark" ? "dark" : "light";
   const myTheme = blockTheme === "dark" ? darkTheme : lightTheme;
   // Renders the editor instance using a React component.
-  return <BlockNoteView editor={editor} theme={myTheme} />;
+
+  const handleSubmitNote = async () => {
+
+    const noteInput = {
+      title: "we'll see how this goes",
+      document: editor.document,
+      userId,
+    }
+    await createNote(noteInput);
+  }
+  return (
+    <>
+
+      <div className='flex flex-row justify-between items-center pb-4'>
+        <p>
+          {id}
+          {sessionStorage.getItem('userId')}
+        </p>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Button onClick={() => handleSubmitNote()} className="ml-auto " variant={'outline'}><Save /></Button>
+        </Suspense>
+
+      </div>
+      <BlockNoteView editor={editor} theme={myTheme} />
+    </>
+  );
 }
