@@ -22,3 +22,13 @@ export async function editNote(
   revalidatePath(`/notes`);
   return note;
 }
+
+export async function deleteNote(
+  id: string
+) {
+  await prisma.note.delete({
+    where: { id: id }
+  });
+  revalidatePath(`/notes`);
+
+}
