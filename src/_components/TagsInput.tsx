@@ -2,15 +2,16 @@
 import { useState } from 'react';
 import { Badge } from '../components/ui/badge';
 import { Input } from '../components/ui/input';
-export const TagsInput = () => {
-  const [tags, setTags] = useState<string[]>([])
-
+export const TagsInput = ({ tags, setTags }: { tags: string[], setTags: React.Dispatch<React.SetStateAction<string[]>> }) => {
+  // const [tags, setTags] = useState<string[]>([])
+  const [inputValue, setInputValue] = useState('');
   function handleKeyDown(e: any) {
-    if (e.key !== 'Enter') return;
+    // space instead of enter
+    if (e.key !== ' ') return;
     const value = e.target.value;
     if (!value.trim()) return;
     setTags([...tags, value]);
-    e.target.value = '';
+    setInputValue('');
   }
 
   function removeTag(index: number) {
@@ -21,7 +22,12 @@ export const TagsInput = () => {
       <h2>Enter Some Tags ...</h2>
       <div className="bg-muted/20 mt-1 flex flex-col items-center gap-2">
         {/* className="flex flex-grow p-0.5 outline-none border-none" */}
-        <Input onKeyDown={handleKeyDown} type="text" placeholder="Type somthing" />
+        <Input
+          onKeyDown={handleKeyDown}
+          type="text"
+          placeholder="Type somthing"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)} />
         <div className="flex flex-wrap gap-1">
           {tags.map((tag, index) => (
             <Badge className='rounded-full flex pr-1' key={index}>
