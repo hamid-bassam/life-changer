@@ -1,8 +1,11 @@
 "use client"
+import { BadgeVariant } from '@prisma/client';
 import { useState } from 'react';
 import { Badge } from '../components/ui/badge';
 import { Input } from '../components/ui/input';
-export const TagsInput = ({ tags, setTags }: { tags: string[], setTags: React.Dispatch<React.SetStateAction<string[]>> }) => {
+import { TagInputType } from './Goal/GoalInput';
+
+export const TagsInput = ({ tags, setTags }: { tags: TagInputType[], setTags: React.Dispatch<React.SetStateAction<TagInputType[]>> }) => {
   // const [tags, setTags] = useState<string[]>([])
   const [inputValue, setInputValue] = useState('');
   function handleKeyDown(e: any) {
@@ -10,7 +13,9 @@ export const TagsInput = ({ tags, setTags }: { tags: string[], setTags: React.Di
     if (e.key !== ' ') return;
     const value = e.target.value;
     if (!value.trim()) return;
-    setTags([...tags, value]);
+
+    const newTag = { name: value, variant: BadgeVariant.DEFAULT };
+    setTags([...tags, newTag]);
     setInputValue('');
   }
 
@@ -20,7 +25,7 @@ export const TagsInput = ({ tags, setTags }: { tags: string[], setTags: React.Di
   return (
     <>
       <h2>Enter Some Tags ...</h2>
-      <div className="bg-muted/20 mt-1 flex flex-col items-center gap-2">
+      <div className="bg-card mt-1 flex flex-col items-center gap-2">
         {/* className="flex flex-grow p-0.5 outline-none border-none" */}
         <Input
           onKeyDown={handleKeyDown}
@@ -30,8 +35,8 @@ export const TagsInput = ({ tags, setTags }: { tags: string[], setTags: React.Di
           onChange={(e) => setInputValue(e.target.value)} />
         <div className="flex flex-wrap gap-1">
           {tags.map((tag, index) => (
-            <Badge className='rounded-full flex pr-1' key={index}>
-              {tag}
+            <Badge variant={tag.variant?.toLocaleLowerCase() as "default" | "outline" | "destructive" | "secondary" ?? "default"} className='rounded-full flex pr-1' key={index}>
+              {tag.name}
               <span className="h-4 w-4 ml-2 rounded-full bg-muted text-muted-foreground inline-flex justify-center items-center p-1 text-sm cursor-pointer" onClick={() => removeTag(index)}>
                 &times;
               </span>

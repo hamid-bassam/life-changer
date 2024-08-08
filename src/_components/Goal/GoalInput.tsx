@@ -16,10 +16,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Goal as GoalType } from "@prisma/client";
+import { BadgeVariant, Goal as GoalType } from "@prisma/client";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "../../components/ui/use-toast";
@@ -35,20 +35,39 @@ const GoalFormSchema = z.object({
     required_error: "You need to select a status.",
   }),
   priority: z.number().min(1).max(5),
-  dueDate: z.date().min(new Date(), { message: "Due date is required" }),
+  dueDate: z.date().min(new Date()).optional(),
   badges: z.string().optional(),
-  tags: z.array(z.string()).optional(),
+  tags: z.array(
+    z.object({
+      name: z.string(),
+      color: z.string().optional(),
+      variant: z.enum(["DEFAULT", "OUTLINE", "SECONDARY", "DESTRUCTIVE"]).optional(),
+
+    })
+  ).optional(),
 });
+
+export type TagInputType = { name: string, color?: string, variant?: BadgeVariant };
 export function GoalInput(props: GoalInputProps) {
 
   const form = useForm<z.infer<typeof GoalFormSchema>>({
     resolver: zodResolver(GoalFormSchema),
+
     defaultValues: {
-      tags: []
-    }
+      title: "",
+      description: "",
+      status: "pending",  // Default status
+      priority: 3,        // Default priority
+      tags: [],           // Default tags
+    },
+
   });
 
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<TagInputType[]>([]);
+
+  useEffect(() => {
+    form.setValue("tags", tags);
+  }, [tags, form]);
 
   function onSubmit(data: z.infer<typeof GoalFormSchema>) {
     toast({
@@ -206,7 +225,7 @@ export function GoalInput(props: GoalInputProps) {
                       tags={tags}
                       setTags={(newTags) => {
                         setTags(newTags);
-                        field.onChange(newTags);
+                        field.onChange(newTags || []);
                       }
                       }
                     />

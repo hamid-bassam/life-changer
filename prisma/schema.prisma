@@ -45,7 +45,7 @@ model Note {
 }
 
 model Goal {
-  id           String    @id @default(cuid())
+  id           String    @id @default(uuid())
   title        String
   description  String?
   status       String    @default("pending")
@@ -62,13 +62,14 @@ model Goal {
   subGoals     Goal[]    @relation("GoalToSubGoals")
   tasks        Task[]
   notes        Note[]
+  tags         Tag[]     @relation("GoalTags")
 
   @@index([userId])
   @@index([parentGoalId])
 }
 
 model Task {
-  id          String    @id @default(cuid())
+  id          String    @id @default(uuid())
   title       String
   description String?
   status      String    @default("pending")
@@ -83,4 +84,21 @@ model Task {
 
   @@index([goalId])
   @@index([userId])
+}
+
+model Tag {
+  id        String       @id @default(uuid())
+  name      String
+  color     String?       
+  variant   BadgeVariant? 
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  goals     Goal[]       @relation("GoalTags")
+}
+
+enum BadgeVariant {
+  DEFAULT     @map("default")
+  OUTLINE     @map("outline")
+  DESTRUCTIVE @map("destructive")
+  SECONDARY   @map("secondary")
 }
