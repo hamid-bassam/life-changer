@@ -2,8 +2,8 @@
 import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
 
 import { notFound } from "next/navigation";
-import prisma from '../lib/prisma';
-import { AddButton } from './AddButton';
+import prisma from '../../lib/prisma';
+import { AddButton } from '../AddButton';
 import { GoalCard } from './GoalCard';
 export const Goals = async () => {
 

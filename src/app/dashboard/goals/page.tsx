@@ -2,7 +2,7 @@ import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { Spinner } from "@nextui-org/react";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { Goals } from "../../../_components/Goals";
+import { Goals } from "../../../_components/Goal/Goals";
 
 
 

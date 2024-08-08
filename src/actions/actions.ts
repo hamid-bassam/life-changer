@@ -8,6 +8,7 @@ export async function createNote(data: Prisma.NoteCreateManyInput) {
   const note = await prisma.note.create({
     data: data
   });
+  revalidatePath(`/notes`);
   return note;
 }
 

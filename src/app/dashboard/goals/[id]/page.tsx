@@ -3,7 +3,7 @@
 // import { Spinner } from "@nextui-org/react";
 
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
-import { GoalInputComponent } from "../../../../_components/GoalInputComponent";
+import { GoalInputComponent } from "../../../../_components/Goal/GoalInputComponent";
 import prisma from "../../../../lib/prisma";
 
 
