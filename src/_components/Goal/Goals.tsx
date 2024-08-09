@@ -14,6 +14,9 @@ export const Goals = async () => {
   const goals = await prisma.goal.findMany({
     where: {
       userId: user?.id
+    },
+    include: {
+      tags: true
     }
   });
   if (!goals) {
