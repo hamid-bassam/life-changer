@@ -87,13 +87,15 @@ model Task {
 }
 
 model Tag {
-  id        String       @id @default(uuid())
+  id        String        @id @default(uuid())
   name      String
-  color     String?       
-  variant   BadgeVariant? 
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-  goals     Goal[]       @relation("GoalTags")
+  color     String?
+  variant   BadgeVariant?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  goals     Goal[]        @relation("GoalTags")
+
+  @@unique([name, color, variant])
 }
 
 enum BadgeVariant {

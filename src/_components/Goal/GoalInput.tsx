@@ -16,17 +16,19 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BadgeVariant, Goal as GoalType } from "@prisma/client";
+import { BadgeVariant, Goal as GoalType, Prisma, Tag } from "@prisma/client";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { createGoal } from "../../actions/actions";
 import { toast } from "../../components/ui/use-toast";
 import { cn } from "../../lib/utils";
 import { TagsInput } from "../TagsInput";
 export type GoalInputProps = {
-  goal?: GoalType | null;
+  goal?: (GoalType & { tags: Tag[] }) | null;
+  userId?: string;
 };
 const GoalFormSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -64,12 +66,13 @@ export function GoalInput(props: GoalInputProps) {
   });
 
   const [tags, setTags] = useState<TagInputType[]>([]);
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
   useEffect(() => {
     form.setValue("tags", tags);
   }, [tags, form]);
 
-  function onSubmit(data: z.infer<typeof GoalFormSchema>) {
+  async function onSubmit(data: z.infer<typeof GoalFormSchema>) {
+    setIsSubmitting(true);
     toast({
       title: "You submitted the following values:",
       description: (
@@ -78,7 +81,20 @@ export function GoalInput(props: GoalInputProps) {
         </pre>
       ),
     });
-    console.log(data);
+
+    const datax: Prisma.GoalCreateInput = {
+      title: form.getValues("title"),
+      description: form.getValues("description"),
+      status: form.getValues("status"),
+      priority: form.getValues("priority"),
+      dueDate: form.getValues("dueDate"),
+      isChild: false,
+      user: { connect: { id: props.userId || "yo ne se" } }
+
+    }
+    await createGoal(datax, tags.map(tag => ({ name: tag.name, color: tag.color || "bg-primary", variant: tag.variant || "DEFAULT" })));
+    setIsSubmitting(false);
+
   }
   return (
 
@@ -87,9 +103,9 @@ export function GoalInput(props: GoalInputProps) {
         <CardTitle>Create a New Goal</CardTitle>
         <CardDescription>Fill out the details below to add a new goal.</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
+      <CardContent className="space-y-4 pb-0">
+        <Form  {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6 flex flex-col ">
             <FormField
               control={form.control}
               name="title"
@@ -235,8 +251,8 @@ export function GoalInput(props: GoalInputProps) {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="ml-auto">
-              Create Goal
+            <Button type="submit" className="ml-auto" disabled={isSubmitting}>
+              {isSubmitting ? "saving ... " : "Create Goal"}
             </Button>
           </form>
         </Form>

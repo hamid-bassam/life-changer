@@ -1,7 +1,8 @@
 "use server";
-import { Prisma } from "@prisma/client";
+import { BadgeVariant, Prisma } from "@prisma/client";
 
 import { revalidatePath } from "next/cache";
+import { TagInputType } from "../_components/Goal/GoalInput";
 import prisma from "../lib/prisma";
 
 export async function createNote(data: Prisma.NoteCreateManyInput) {
@@ -34,9 +35,32 @@ export async function deleteNote(
 
 }
 
-export async function createGoal(data: Prisma.GoalCreateManyInput) {
+export async function createGoal(data: Prisma.GoalCreateInput, tags: TagInputType[]) {
   const goal = await prisma.goal.create({
-    data: data
+    data: {
+      ...data,
+
+      tags: {
+        connectOrCreate: tags.map(tag => ({
+          where: {
+            name_color_variant: {
+              name: tag.name,
+              color: tag.color || "bg-primary",
+              variant: tag.variant || BadgeVariant.DEFAULT,
+            },
+          },
+          create: {
+            name: tag.name,
+            color: tag.color || "bg-primary",
+            variant: tag.variant || BadgeVariant.DEFAULT,
+          },
+        })),
+
+
+
+      }
+    },
+
   });
   revalidatePath(`/goals`);
   return goal;
