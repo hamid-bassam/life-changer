@@ -1,6 +1,7 @@
 'use client';
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -27,9 +28,9 @@ export type DeleteProps = {
 
 export const Delete = (props: DeleteProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
-  const [deleted, setDeleted] = useState(false);
+  // const [deleted, setDeleted] = useState(false);
   return (
-    <Dialog onOpenChange={setDeleted}>
+    <Dialog>
       <DialogTrigger asChild>
         <Trash className="cursor-pointer text-destructive/80 transition-all hover:scale-125 hover:text-destructive h-4" />
 
@@ -61,15 +62,14 @@ export const Delete = (props: DeleteProps) => {
           </>
         ) : <div className='h-full flex flex-col flex-grow items-center justify-center'> <Spinner></Spinner></div>}
         <DialogFooter>
-
-          <Button variant={'destructive'} onClick={async () => {
-            setIsDeleting(true);
-            await props.deleteAction(props.id);
-
-            setIsDeleting(false);
-            setDeleted(true);
-          }
-          }>Delete</Button>
+          <DialogClose asChild>
+            <Button variant={'destructive'} onClick={async () => {
+              setIsDeleting(true);
+              await props.deleteAction(props.id);
+              setIsDeleting(false);
+            }
+            }>Delete</Button>
+          </DialogClose>
 
         </DialogFooter>
       </DialogContent>
