@@ -17,7 +17,7 @@ export const GoalCardToolTip = () => {
           <Button variant="outline" disabled><Paperclip size={15} /></Button>
 
           <Tooltip >
-            <TooltipTrigger>
+            <TooltipTrigger asChild>
               <Button variant="outline"><Edit size={15} /></Button>
             </TooltipTrigger>
             <TooltipContent className='bg-muted-foreground text-muted '>

@@ -3,7 +3,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Goal as GoalType, Tag } from '@prisma/client';
+import { BadgeVariant, Goal as GoalType, Tag } from '@prisma/client';
 import { Goal } from 'lucide-react';
 import { deleteGoal } from '../../actions/actions';
 import { cn } from '../../lib/utils';
@@ -14,6 +14,19 @@ import { GoalCardToolTip } from './GoalCardToolTip';
 export type GoalCardProps = {
   goal: GoalType & { tags: Tag[] };
 };
+export function mapVariantToString(variant?: BadgeVariant | null): "default" | "outline" | "secondary" | "destructive" {
+  switch (variant) {
+    case BadgeVariant.OUTLINE:
+      return "outline";
+    case BadgeVariant.SECONDARY:
+      return "secondary";
+    case BadgeVariant.DESTRUCTIVE:
+      return "destructive";
+    default:
+      return "default";
+  }
+}
+
 const tsp = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 export const GoalCard = async (props: GoalCardProps) => {
 
@@ -34,7 +47,7 @@ export const GoalCard = async (props: GoalCardProps) => {
 
         <div className='inline-flex gap-2'>
           {props.goal.tags.map(tag => (
-            <Badge key={tag.id} variant={tag.variant?.toLowerCase() as "default" | "outline" | "secondary" | "destructive" ?? "default"} className={cn(tag.color, "h-5")}>{tag.name}</Badge>
+            <Badge key={tag.id} variant={mapVariantToString(tag.variant)} className={cn(tag.color, "h-5")}>{tag.name}</Badge>
           ))}
           <Badge className='h-5'>Projects</Badge>
           <Badge variant={'secondary'} className='bg-secondary h-5'>Dev</Badge>

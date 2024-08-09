@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster as ToasterShadcn } from "@/components/ui/toaster";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import { Anek_Telugu } from "next/font/google";
+import { Toaster } from "sonner";
 import { ThemeProvider } from "../features/theme/ThemeProvider";
 import { cn } from "../lib/utils";
 import "./globals.css";
@@ -46,7 +47,8 @@ export default function RootLayout({
               </Providers>
             </div>
           </div>
-          <Toaster />
+          <ToasterShadcn />
+          <Toaster richColors />
         </ThemeProvider>
       </body>
     </html>
