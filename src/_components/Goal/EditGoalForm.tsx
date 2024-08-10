@@ -60,6 +60,8 @@ export function EditGoalForm({ goalId, goal }: { goalId: string, goal: (GoalType
     } finally {
       setIsSubmitting(false);
     }
+
+
   };
 
   return (

@@ -45,12 +45,13 @@ export const GoalCard = async (props: GoalCardProps) => {
           </div>
           : null}
 
-        <div className='inline-flex gap-2'>
+        <div className='inline-flex gap-2 flex-wrap'>
           {props.goal.tags.map(tag => (
-            <Badge key={tag.id} variant={mapVariantToString(tag.variant)} className={cn(tag.color, "h-5")}>{tag.name}</Badge>
+            <Badge
+              key={tag.id}
+              // variant={mapVariantToString(tag.variant)} 
+              className={cn(tag.color, "h-5")}>{tag.name}</Badge>
           ))}
-          <Badge className='h-5'>Projects</Badge>
-          <Badge variant={'secondary'} className='bg-secondary h-5'>Dev</Badge>
         </div>
         <Progress value={1} />
       </CardContent>

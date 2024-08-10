@@ -1,16 +1,19 @@
 "use client"
 import { BadgeVariant } from '@prisma/client';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Badge } from '../components/ui/badge';
 import { Input } from '../components/ui/input';
+import { cn } from '../lib/utils';
+import { ColorPicker } from './ColorPicker';
 import { TagInputType } from './Goal/GoalInputUtils';
 
 export const TagsInput = ({ tags, setTags }: { tags: TagInputType[], setTags: React.Dispatch<React.SetStateAction<TagInputType[]>> }) => {
-  // const [tags, setTags] = useState<string[]>([])
+  const badgeRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [inputValue, setInputValue] = useState('');
+
   function handleKeyDown(e: any) {
     // space instead of enter
-    if (e.key !== ' ') return;
+    if (e.key !== 'Enter') return;
     const value = e.target.value;
     if (!value.trim()) return;
 
@@ -20,8 +23,10 @@ export const TagsInput = ({ tags, setTags }: { tags: TagInputType[], setTags: Re
   }
 
   function removeTag(index: number) {
-    setTags(tags.filter((el, i) => i !== index))
+    console.log("clicked rm")
+    setTags(tags.filter((_, i) => i !== index))
   }
+
   return (
     <>
       <h2>Enter Some Tags ...</h2>
@@ -35,15 +40,39 @@ export const TagsInput = ({ tags, setTags }: { tags: TagInputType[], setTags: Re
           onChange={(e) => setInputValue(e.target.value)} />
         <div className="flex flex-wrap gap-1">
           {tags.map((tag, index) => (
-            <Badge variant={tag.variant?.toLocaleLowerCase() as "default" | "outline" | "destructive" | "secondary" ?? "default"} className='rounded-full flex pr-1' key={index}>
-              {tag.name}
-              <span className="h-4 w-4 ml-2 rounded-full bg-muted text-muted-foreground inline-flex justify-center items-center p-1 text-sm cursor-pointer" onClick={() => removeTag(index)}>
+
+            <div key={index} className='flex pr-1 space-x-0.5' >
+              <ColorPicker onChange={(color) => {
+                setTags(tags.map((el, i) => {
+                  if (i === index) {
+                    return { ...el, color: color };
+                  }
+                  return el;
+                }));
+              }}
+              >
+                <Badge
+                  ref={(el: HTMLDivElement | null) => { badgeRefs.current[index] = el }}
+                  className={cn('rounded-full cursor-crosshair ', tag.color, `hover:`, tag.color)}
+                  key={index}
+                >
+                  {tag.name}
+
+
+                </Badge>
+              </ColorPicker>
+              <span className="h-4 w-4 ml-2 rounded-full bg-muted text-muted-foreground inline-flex justify-center items-center p-1 text-sm cursor-pointer"
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  removeTag(index);
+                }}>
                 &times;
               </span>
-            </Badge>
+            </div>
           ))}
         </div>
-      </div>
+      </div >
     </>
   );
 };

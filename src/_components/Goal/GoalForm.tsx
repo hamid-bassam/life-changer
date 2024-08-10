@@ -28,7 +28,13 @@ export const GoalForm: React.FC<GoalFormProps> = ({ createOrEdit, form, onSubmit
       </CardHeader>
       <CardContent className="space-y-4 pb-0">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6 flex flex-col">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();  // Empêche la soumission du formulaire via "Entrée"
+              }
+            }} className="w-full space-y-6 flex flex-col">
             <TitleField control={form.control} />
             <DescriptionField control={form.control} />
             <div className="grid max-sm:grid-cols-2 grid-cols-2 gap-4">
