@@ -58,7 +58,7 @@ export const GoalCard = async (props: GoalCardProps) => {
 
 
         <Delete id={props.goal.id} deleteAction={deleteGoal} message={`Are you sure you want to delete this goal?`} title={props.goal.title} />
-        <GoalCardToolTip />
+        <GoalCardToolTip goalId={props.goal.id} />
 
 
       </CardFooter>

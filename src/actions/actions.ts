@@ -66,13 +66,48 @@ export async function createGoal(data: Prisma.GoalCreateInput, tags: TagInputTyp
   return goal;
 }
 
+// export async function editGoal(
+//   id: string,
+//   data: Prisma.GoalUpdateInput
+// ) {
+//   const goal = await prisma.goal.update({
+//     where: { id: id },
+//     data: data
+//   });
+//   revalidatePath(`/goals`);
+//   return goal;
+// }
+
 export async function editGoal(
   id: string,
-  data: Prisma.GoalUpdateInput
+  data: Prisma.GoalUpdateInput,
+  tags: TagInputType[]
 ) {
   const goal = await prisma.goal.update({
     where: { id: id },
-    data: data
+    data: {
+      ...data,
+      tags: {
+        // Disconnect all existing tags first (optional, depending on desired behavior)
+        set: [],
+
+        // Then connect or create new tags
+        connectOrCreate: tags.map(tag => ({
+          where: {
+            name_color_variant: {
+              name: tag.name,
+              color: tag.color || "bg-primary",
+              variant: tag.variant || BadgeVariant.DEFAULT,
+            },
+          },
+          create: {
+            name: tag.name,
+            color: tag.color || "bg-primary",
+            variant: tag.variant || BadgeVariant.DEFAULT,
+          },
+        })),
+      }
+    },
   });
   revalidatePath(`/goals`);
   return goal;

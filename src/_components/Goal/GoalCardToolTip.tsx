@@ -4,8 +4,9 @@ import { Edit, Ellipsis, GoalIcon, Paperclip, Plus, SquareCheckBig } from 'lucid
 
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import Link from 'next/link';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../components/ui/tooltip';
-export const GoalCardToolTip = () => {
+export const GoalCardToolTip = ({ goalId }: { goalId: string }) => {
 
   return (
     <div className='flex relative flex-col gap-2 w-full'>
@@ -15,15 +16,16 @@ export const GoalCardToolTip = () => {
           <div className='flex-1 mr-auto '></div>
 
           <Button variant="outline" disabled><Paperclip size={15} /></Button>
-
-          <Tooltip >
-            <TooltipTrigger asChild>
-              <Button variant="outline"><Edit size={15} /></Button>
-            </TooltipTrigger>
-            <TooltipContent className='bg-muted-foreground text-muted '>
-              <p>Edit</p>
-            </TooltipContent>
-          </Tooltip>
+          <Link href={`/dashboard/goals/${goalId}`}>
+            <Tooltip >
+              <TooltipTrigger asChild>
+                <Button variant="outline"><Edit size={15} /></Button>
+              </TooltipTrigger>
+              <TooltipContent className='bg-muted-foreground text-muted '>
+                <p>Edit</p>
+              </TooltipContent>
+            </Tooltip>
+          </Link>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -31,19 +33,20 @@ export const GoalCardToolTip = () => {
             </DropdownMenuTrigger>
 
             <DropdownMenuContent className={`flex  items-center `}>
-
-              <Tooltip >
-                <TooltipTrigger>
-                  <DropdownMenuItem className='p-0'>
-                    <Button variant='ghost' className=''>
-                      <GoalIcon size={15} />
-                    </Button>
-                  </DropdownMenuItem>
-                </TooltipTrigger>
-                <TooltipContent className='bg-muted-foreground text-muted '>
-                  <p>Add a goal</p>
-                </TooltipContent>
-              </Tooltip>
+              <Link href={`goals/create?parentId=${goalId}`}>
+                <Tooltip >
+                  <TooltipTrigger>
+                    <DropdownMenuItem className='p-0'>
+                      <Button variant='ghost' className=''>
+                        <GoalIcon size={15} />
+                      </Button>
+                    </DropdownMenuItem>
+                  </TooltipTrigger>
+                  <TooltipContent className='bg-muted-foreground text-muted '>
+                    <p>Add a goal</p>
+                  </TooltipContent>
+                </Tooltip>
+              </Link>
 
               <Tooltip >
                 <TooltipTrigger>

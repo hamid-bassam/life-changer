@@ -19,11 +19,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { BadgeVariant, Goal as GoalType, Prisma, Tag } from "@prisma/client";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
+import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Control, useForm } from "react-hook-form";
 import { toast as toastSonner } from 'sonner';
 import { z } from "zod";
-import { createGoal } from "../../actions/actions";
+import { createGoal, editGoal } from "../../actions/actions";
 import { cn } from "../../lib/utils";
 import { TagsInput } from "../TagsInput";
 
@@ -53,22 +54,38 @@ const GoalFormSchema = z.object({
 });
 
 export type TagInputType = { name: string, color?: string, variant?: BadgeVariant };
+
+
 export function GoalInput(props: GoalInputProps) {
+
+  const searchParams = useSearchParams();   //create or update goal id
+  const params = useParams<{ id: string }>(); // parent goal id
+
 
   const form = useForm<z.infer<typeof GoalFormSchema>>({
     resolver: zodResolver(GoalFormSchema),
 
     defaultValues: {
-      title: "",
-      description: "",
-      status: "pending",  // Default status
-      priority: 3,        // Default priority
-      tags: [],           // Default tags
+      title: props.goal?.title || "",
+      description: props.goal?.description || "",
+      status: props.goal?.status as "pending" | "in-progress" | "completed" || "pending",  // Default status
+      priority: props.goal?.priority || 3,        // Default priority
+      dueDate: props.goal?.dueDate || undefined,
+      tags: props.goal?.tags.map(tag => ({
+        name: tag.name || undefined,
+        color: tag.color || undefined,
+        variant: tag.variant || undefined,
+      })) || [],
     },
 
   });
 
-  const [tags, setTags] = useState<TagInputType[]>([]);
+  const [tags, setTags] = useState<TagInputType[]>(props.goal?.tags.map(tag => ({
+    name: tag.name || "",
+    color: tag.color || "",
+    variant: tag.variant || BadgeVariant.DEFAULT
+  })) || []
+  )
   const [isSubmitting, setIsSubmitting] = useState(false);
   useEffect(() => {
     form.setValue("tags", tags);
@@ -92,8 +109,13 @@ export function GoalInput(props: GoalInputProps) {
         status,
         priority,
         dueDate,
-        isChild: false,
+        isChild: Boolean(searchParams.get("parentId")),
         user: { connect: { id: props.userId } },
+        parentGoal: searchParams.get("parentId") && params.id === "create" ?
+          {
+            connect: { id: searchParams.get("parentId") || undefined }
+          } :
+          undefined,
       };
 
       const tagData = tags.map(tag => ({
@@ -102,18 +124,24 @@ export function GoalInput(props: GoalInputProps) {
         variant: tag.variant,
       }));
 
-      await createGoal(datax, tagData);
 
+      if (params.id === "create") {
 
-
-      toastSonner.success('Success', {
-        description: "Goal created successfully!",
-      });
+        await createGoal(datax, tagData);
+        toastSonner.success('Success', {
+          description: "Goal created successfully!",
+        });
+      } else {
+        await editGoal(params.id, datax, tagData);
+        toastSonner.success('Success', {
+          description: "Goal updated successfully!",
+        });
+      }
     } catch (error) {
       console.error("Failed to create goal:", error);
 
       toastSonner.error('Error', {
-        description: "Failed to create goal. Please try again.",
+        description: `Failed to ${(params.id === "create" ? "create" : "update")} goal. Please try again.`,
       });
     } finally {
       setIsSubmitting(false);
@@ -173,7 +201,7 @@ export function GoalInput(props: GoalInputProps) {
             <DueDateField control={form.control} />
             <TagsField control={form.control} tags={tags} setTags={setTags} />
             <Button type="submit" className="ml-auto" disabled={isSubmitting}>
-              {isSubmitting ? "saving ... " : "Create Goal"}
+              {isSubmitting ? "saving ... " : params.id === "create" ? "Create Goal" : "Update Goal"}
             </Button>
           </form>
         </Form>
