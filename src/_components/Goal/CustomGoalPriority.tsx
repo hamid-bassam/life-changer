@@ -12,11 +12,10 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { useState } from "react";
-import { Control } from "react-hook-form";
+import { Control, FieldPath, FieldValues } from "react-hook-form";
 
-import { z } from "zod";
-import { Slider } from "../components/ui/slider";
-import { GoalFormSchema, mapPriorityStringToInt, PriorityEnum } from "./Goal/GoalInput";
+import { Slider } from "../../components/ui/slider";
+import { mapPriorityIntToString, mapPriorityStringToInt, PriorityEnum } from "./GoalInputUtils";
 
 const getSliderGradientClass = (value: number) => {
   if (value <= 20) {
@@ -34,33 +33,52 @@ const getSliderGradientClass = (value: number) => {
   }
 };
 
-export const CustomProgress = ({ control, customPriority }: { control: Control<z.infer<typeof GoalFormSchema>>, customPriority: number }) => {
-  const initIsCustom = !(customPriority === PriorityEnum.LOW || customPriority === PriorityEnum.MEDIUM || customPriority === PriorityEnum.HIGH)
-  const [isCustom, setIsCustom] = useState(initIsCustom); // Pour suivre si "Custom" est sélectionné
-  const [customValue, setCustomValue] = useState(customPriority); // Valeur par défaut pour Custom
 
-  const handleValueChange = (e: string, field: any) => {
-    const priority = mapPriorityStringToInt(e);
-    if (priority === PriorityEnum.CUSTOM) {
-      setIsCustom(true);
-      field.onChange(customValue); // Utiliser la valeur par défaut
-    } else {
-      setIsCustom(false);
-      field.onChange(priority);
+interface CustomGoalPriorityProps<TFieldValues extends FieldValues> {
+  control: Control<TFieldValues>;
+  name: FieldPath<TFieldValues>;
+  customPriority: number;
+}
+
+export const CustomGoalPriority = <TFieldValues extends FieldValues>({
+  control,
+  name,
+  customPriority,
+}: CustomGoalPriorityProps<TFieldValues>) => {
+
+
+  const [state, setState] = useState<
+    {
+      isCustom: boolean,
+      customValue: number
     }
+  >(
+    {
+      isCustom: !(customPriority === PriorityEnum.LOW || customPriority === PriorityEnum.MEDIUM || customPriority === PriorityEnum.HIGH),
+      customValue: customPriority
+    });
+
+  const handleValueChange = (e: string, field: { onChange: (value: number) => void }) => {
+    const priority = mapPriorityStringToInt(e);
+    setState({
+      ...state,
+      isCustom: priority === PriorityEnum.CUSTOM,
+      customValue: priority === PriorityEnum.CUSTOM ? state.customValue : priority
+    });
+    field.onChange(priority);
   };
 
-  const handleCustomValueChange = (value: number[], field: any) => {
-    const newValue = value[0]; // Supposons que le slider retourne un tableau, on prend la première valeur
-    setCustomValue(newValue);
+  const handleCustomValueChange = (value: number[], field: { onChange: (value: number) => void }) => {
+    const newValue = value[0];
+    setState((prev) => ({ ...prev, customValue: newValue }))
     field.onChange(newValue);
   };
-  // console.log([1].map(n => customValue));
-  console.log([customValue])
+
+  console.log("render comp")
   return (
     <FormField
       control={control}
-      name="priority"
+      name={name}
       render={({ field }) => (
         <FormItem>
           <FormLabel>Priority</FormLabel>
@@ -68,7 +86,8 @@ export const CustomProgress = ({ control, customPriority }: { control: Control<z
             <div className="flex flex-col gap-4">
               <Select
                 defaultValue={PriorityEnum[field.value]}
-                onValueChange={(e) => handleValueChange(e, field)}
+                value={mapPriorityIntToString(field.value)}
+                onValueChange={e => handleValueChange(e, field)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select priority" />
@@ -80,15 +99,16 @@ export const CustomProgress = ({ control, customPriority }: { control: Control<z
                   <SelectItem value="CUSTOM">Custom</SelectItem>
                 </SelectContent>
               </Select>
-              {isCustom && (
+              {state.isCustom && (
                 <div className="flex flex-col gap-4">
                   <FormLabel htmlFor="customPriority">Custom Priority</FormLabel>
 
-                  <Slider rangeColor={getSliderGradientClass(customValue)} value={[customValue]} step={5} max={100} onValueChange={(e) => handleCustomValueChange(e, field)}
-                  //  style={{
-                  //   "background": getSliderGradient(field.value)
-                  // }} 
-
+                  <Slider
+                    rangeColor={getSliderGradientClass(state.customValue)}
+                    value={[state.customValue]}
+                    step={5}
+                    max={100}
+                    onValueChange={(e) => handleCustomValueChange(e, field)}
                   />
                 </div>
               )}

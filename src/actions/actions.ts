@@ -2,7 +2,7 @@
 import { BadgeVariant, Prisma } from "@prisma/client";
 
 import { revalidatePath } from "next/cache";
-import { TagInputType } from "../_components/Goal/GoalInput";
+import { TagInputType } from "../_components/Goal/GoalInputUtils";
 import prisma from "../lib/prisma";
 
 export async function createNote(data: Prisma.NoteCreateManyInput) {

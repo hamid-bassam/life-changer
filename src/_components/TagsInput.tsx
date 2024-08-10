@@ -3,7 +3,7 @@ import { BadgeVariant } from '@prisma/client';
 import { useState } from 'react';
 import { Badge } from '../components/ui/badge';
 import { Input } from '../components/ui/input';
-import { TagInputType } from './Goal/GoalInput';
+import { TagInputType } from './Goal/GoalInputUtils';
 
 export const TagsInput = ({ tags, setTags }: { tags: TagInputType[], setTags: React.Dispatch<React.SetStateAction<TagInputType[]>> }) => {
   // const [tags, setTags] = useState<string[]>([])
