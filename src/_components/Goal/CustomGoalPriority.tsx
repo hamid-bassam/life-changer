@@ -19,20 +19,19 @@ import { mapPriorityIntToString, mapPriorityStringToInt, PriorityEnum } from "./
 
 const getSliderGradientClass = (value: number) => {
   if (value <= 20) {
-    return `bg-gradient-to-r from-green-200 to-primary`;
+    return `bg-gradient-to-r from-cyan-200 to-emerald-300`;
   } else if (value <= 40) {
-    return `bg-gradient-to-r from-cyan-200 to-blue-500`;
+    return `bg-gradient-to-r from-emerald-200  to-lime-300`;
   } else if (value <= 60) {
-    return `bg-gradient-to-r from-yellow-200 to-yellow-500`;
+    return `bg-gradient-to-r from-lime-200  to-yellow-300`;
   } else if (value <= 80) {
-    return `bg-gradient-to-r from-orange-200 to-orange-500`;
+    return `bg-gradient-to-r from-yellow-200  to-amber-300`;
   } else if (value <= 90) {
-    return `bg-gradient-to-r from-orange-200 to-red-400`;
+    return `bg-gradient-to-r from-amber-300 to-red-400`;
   } else {
-    return `bg-gradient-to-r from-red-200 to-destructive`;
+    return `bg-gradient-to-r from-amber-400  to-destructive`;
   }
 };
-
 
 interface CustomGoalPriorityProps<TFieldValues extends FieldValues> {
   control: Control<TFieldValues>;
