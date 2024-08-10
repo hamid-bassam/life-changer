@@ -26,6 +26,7 @@ import { toast as toastSonner } from 'sonner';
 import { z } from "zod";
 import { createGoal, editGoal } from "../../actions/actions";
 import { cn } from "../../lib/utils";
+import { CustomProgress } from "../CustomProgress";
 import { TagsInput } from "../TagsInput";
 
 
@@ -34,13 +35,13 @@ export type GoalInputProps = {
   goal?: (GoalType & { tags: Tag[] }) | null;
   userId?: string;
 };
-const GoalFormSchema = z.object({
+export const GoalFormSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
   description: z.string().optional(),
   status: z.enum(["pending", "in-progress", "completed"], {
     required_error: "You need to select a status.",
   }),
-  priority: z.number().min(1).max(5),
+  priority: z.number().min(1).max(100),
   dueDate: z.date().min(new Date()).optional(),
   badges: z.string().optional(),
   tags: z.array(
@@ -55,8 +56,17 @@ const GoalFormSchema = z.object({
 
 export type TagInputType = { name: string, color?: string, variant?: BadgeVariant };
 
+export enum PriorityEnum {
+  HIGH = 95,
+  MEDIUM = 50,
+  LOW = 5,
+  CUSTOM = -1
+}
 
 export function GoalInput(props: GoalInputProps) {
+
+
+
 
   const searchParams = useSearchParams();   //create or update goal id
   const params = useParams<{ id: string }>(); // parent goal id
@@ -196,7 +206,8 @@ export function GoalInput(props: GoalInputProps) {
             <DescriptionField control={form.control} />
             <div className="grid max-sm:grid-cols-2 grid-cols-2 gap-4">
               <StatusField control={form.control} />
-              <PriorityField control={form.control} />
+              {/* <PriorityField control={form.control} /> */}
+              <CustomProgress customPriority={form.getValues('priority')} control={form.control} />
             </div>
             <DueDateField control={form.control} />
             <TagsField control={form.control} tags={tags} setTags={setTags} />
@@ -270,31 +281,56 @@ const StatusField = ({ control }: { control: Control<z.infer<typeof GoalFormSche
   />
 );
 
-const PriorityField = ({ control }: { control: Control<z.infer<typeof GoalFormSchema>> }) => (
-  <FormField
-    control={control}
-    name="priority"
-    render={({ field }) => (
-      <FormItem>
-        <FormLabel>Priority</FormLabel>
-        <FormControl>
-          <Select onValueChange={(e) => field.onChange(e === 'low' ? 1 : e === 'medium' ? 3 : e === 'high' ? 5 : 0)} required>
-            <SelectTrigger>
-              <SelectValue placeholder="Select priority" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="low">Low</SelectItem>
-              <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="high">High</SelectItem>
-            </SelectContent>
-          </Select>
+// ==============================================================================================
+export const mapPriorityStringToInt = (priority: string): PriorityEnum => {
+  switch (priority) {
+    case 'LOW':
+      return PriorityEnum.LOW;
+    case 'MEDIUM':
+      return PriorityEnum.MEDIUM;
+    case 'HIGH':
+      return PriorityEnum.HIGH;
+    default:
+      return PriorityEnum.CUSTOM;
+  }
+};
 
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    )}
-  />
-);
+export const PriorityField = ({ control }: { control: Control<z.infer<typeof GoalFormSchema>> }) => {
+
+  return (
+    <FormField
+      control={control}
+      name="priority"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Priority</FormLabel>
+          <FormControl>
+            <Select defaultValue={PriorityEnum[field.value]} onValueChange={(e) => field.onChange(mapPriorityStringToInt(e))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select priority" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="LOW">Low</SelectItem>
+                <SelectItem value="MEDIUM">Medium</SelectItem>
+                <SelectItem value="HIGH">High</SelectItem>
+                <SelectItem value="CUSTOM">Custom</SelectItem>
+              </SelectContent>
+            </Select>
+
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
+
+
+
+
+// =====================================================================
 
 const DueDateField = ({ control }: { control: Control<z.infer<typeof GoalFormSchema>> }) => (
   <FormField
