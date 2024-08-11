@@ -43,7 +43,7 @@ export function EditGoalForm({ goalId, goal }: { goalId: string, goal: (GoalType
 
       const tagData = tags.map(tag => ({
         name: tag.name,
-        color: tag.color || "bg-primary",
+        color: tag.color,
         variant: tag.variant,
       }));
 

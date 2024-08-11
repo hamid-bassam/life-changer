@@ -28,6 +28,8 @@ export const SelectParentGoal = async () => {
 
 
   return (
+
     <SelectGoalComponent goals={goals} />
+
   );
 };

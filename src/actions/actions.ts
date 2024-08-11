@@ -45,14 +45,14 @@ export async function createGoal(data: Prisma.GoalCreateInput, tags: TagInputTyp
           where: {
             name_color_variant: {
               name: tag.name,
-              color: tag.color || "bg-primary",
+              color: tag.color || "",
               variant: tag.variant || BadgeVariant.DEFAULT,
             },
           },
           create: {
             name: tag.name,
-            color: tag.color || "bg-primary",
-            variant: tag.variant || BadgeVariant.DEFAULT,
+            color: tag.color,
+            variant: tag.variant,
           },
         })),
 
@@ -83,14 +83,14 @@ export async function editGoal(
           where: {
             name_color_variant: {
               name: tag.name,
-              color: tag.color || "bg-primary",
+              color: tag.color || "",
               variant: tag.variant || BadgeVariant.DEFAULT,
             },
           },
           create: {
             name: tag.name,
-            color: tag.color || "bg-primary",
-            variant: tag.variant || BadgeVariant.DEFAULT,
+            color: tag.color,
+            variant: tag.variant
           },
         })),
       }

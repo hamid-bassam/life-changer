@@ -46,7 +46,7 @@ export function CreateGoalForm({ userId }: { userId: string }) {
 
       const tagData = tags.map(tag => ({
         name: tag.name,
-        color: tag.color || "bg-primary",
+        color: tag.color,
         variant: tag.variant,
       }));
 

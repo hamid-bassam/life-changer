@@ -32,11 +32,11 @@ export const SelectGoalComponent = (props: SelectGoalComponentProps) => {
   });
   const uniqueTags: { id: string, name: string, color: string | null }[] = [...new Set(props.goals.flatMap(goal => goal.tags))];
   return (
-    <Select>
+    <Select >
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="Select a parent goal" />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="max-w-md">
         {/* Barre de Recherche */}
         <div className="p-2">
           <Input
