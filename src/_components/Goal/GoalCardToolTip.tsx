@@ -35,7 +35,7 @@ export const GoalCardToolTip = ({ goalId }: { goalId: string }) => {
             <DropdownMenuContent className={`flex  items-center `}>
               <Link href={`goals/create?parentId=${goalId}`}>
                 <Tooltip >
-                  <TooltipTrigger>
+                  <TooltipTrigger asChild>
                     <DropdownMenuItem className='p-0'>
                       <Button variant='ghost' className=''>
                         <GoalIcon size={15} />
