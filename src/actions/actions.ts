@@ -4,6 +4,7 @@ import { BadgeVariant, Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { TagInputType } from "../_components/Goal/GoalInputUtils";
 import prisma from "../lib/prisma";
+import { HierarchicalItem, ItemType } from "../types/hierarchy";
 
 export async function createNote(data: Prisma.NoteCreateManyInput) {
   const note = await prisma.note.create({
@@ -163,3 +164,93 @@ export async function deleteTask(
   revalidatePath(`/tasks`);
 
 }
+
+/** 
+ * get goals and transform them into a hierarchical structure
+ * 
+ * 
+ * 
+ *  */
+
+async function getGoals(): Promise<HierarchicalItem[]> {
+  const goals = await prisma.goal.findMany({
+    select: {
+      id: true,
+      title: true,
+      parentGoalId: true,
+      depth: true,
+      status: true,
+      importance: true,
+      // Ajoutez d'autres champs nécessaires
+    },
+  });
+
+  // Cast manuel des éléments vers le type Goal
+  return goals.map(goal => ({
+    ...goal,
+    type: ItemType.GOAL,      // Ajout du type spécifique à chaque goal
+    children: [],             // Initialiser les enfants comme un tableau vide
+    parentId: goal.parentGoalId || undefined,
+  }));
+}
+
+async function getTasks(): Promise<HierarchicalItem[]> {
+  const tasks = await prisma.task.findMany({
+    select: {
+      id: true,
+      title: true,
+      status: true,
+      goalId: true,
+      parentTaskId: true,
+      depth: true,
+      importance: true,
+      // Ajoutez d'autres champs nécessaires
+    },
+  });
+
+  // Cast manuel des éléments vers le type Task
+  return tasks.map(task => ({
+    ...task,
+    type: ItemType.TASK,      // Ajout du type spécifique à chaque task
+    children: [],             // Initialiser les enfants comme un tableau vide
+    parentId: task.goalId || task.parentTaskId || undefined,
+  }));
+}
+
+async function getNotes(): Promise<HierarchicalItem[]> {
+  const notes = await prisma.note.findMany({
+    select: {
+      id: true,
+      title: true,
+      taskId: true,
+      goalId: true,
+      // Ajoutez d'autres champs nécessaires
+    },
+  });
+
+  // Cast manuel des éléments vers le type Note
+  return notes.map(note => ({
+    ...note,
+    type: ItemType.NOTE,
+    status: undefined,    // Ajout du type spécifique à chaque note
+    // children: [],             // Initialiser les enfants comme un tableau vide
+    parentId: note.taskId || note.goalId || undefined,
+  }));
+}
+
+export async function getHierarchicalItems(): Promise<HierarchicalItem[]> {
+  const goals = await getGoals();
+  const tasks = await getTasks();
+  const notes = await getNotes();
+
+
+  const items: HierarchicalItem[] = [
+    ...goals,
+    ...tasks.map(task => ({ ...task, type: ItemType.TASK })),
+    ...notes.map(note => ({ ...note, type: ItemType.NOTE })),
+  ];
+
+  return items;
+}
+
+

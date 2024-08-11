@@ -58,10 +58,10 @@ export const SelectGoalComponent = (props: SelectGoalComponentProps) => {
             >
               All
             </Button>
-            {uniqueTags.map(tag => (
+            {uniqueTags.map((tag, index) => (
 
               <Badge
-                key={tag.id}
+                key={index}
                 variant={"outline"}
                 className={cn(tag.color, "h-5 cursor-pointer", selectedTag?.id === tag.id ? 'ring' : '')}
                 // `p-1 rounded ${selectedTag?.id === tag.id ? 'bg-blue-500 text-white' : 'bg-gray-200'}`, 
