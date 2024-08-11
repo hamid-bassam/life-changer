@@ -73,6 +73,8 @@ model Task {
   id           String    @id @default(uuid())
   ref          String
   title        String
+  priority     Int      @default(0)
+  importance   Int      @default(50)
   description  String?
   status       String    @default("pending")
   dueDate      DateTime?
