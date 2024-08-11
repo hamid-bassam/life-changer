@@ -52,24 +52,24 @@ export const SelectGoalComponent = (props: SelectGoalComponentProps) => {
           <SelectLabel>Filter by Tag</SelectLabel>
           <div className=" gap-2 p-2 inline-flex flex-wrap">
 
-            <button
+            <Button
               onClick={() => setSelectedTag(undefined)}
-              className={`p-1 rounded ${selectedTag?.name === '' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+              className={` h-5 rounded ${selectedTag ? '' : 'ring'}`}
             >
               All
-            </button>
+            </Button>
             {uniqueTags.map(tag => (
-              <Button
-                asChild
+
+              <Badge
                 key={tag.id}
+                variant={"outline"}
+                className={cn(tag.color, "h-5 cursor-pointer", selectedTag?.id === tag.id ? 'ring' : '')}
+                // `p-1 rounded ${selectedTag?.id === tag.id ? 'bg-blue-500 text-white' : 'bg-gray-200'}`, 
                 onClick={() => setSelectedTag(tag)}
-                className={`p-1 rounded ${selectedTag === tag ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
               >
-                <Badge
-                  className={cn(tag.color, "h-5")}>
-                  {tag.name}
-                </Badge>
-              </Button>
+                {tag.name}
+              </Badge>
+
             ))}
           </div>
         </SelectGroup>
