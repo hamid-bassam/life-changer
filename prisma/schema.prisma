@@ -50,6 +50,7 @@ model Goal {
   description  String?
   status       String    @default("pending")
   priority     Int
+  importance   Int       @default(50)  
   depth        Int       @default(0)
   dueDate      DateTime?
   isChild      Boolean   @default(false)

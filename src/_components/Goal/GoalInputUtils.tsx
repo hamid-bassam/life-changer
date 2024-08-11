@@ -35,7 +35,8 @@ export const GoalFormSchema = z.object({
   status: z.enum(["pending", "in-progress", "completed"], {
     required_error: "You need to select a status.",
   }),
-  priority: z.number().min(0).max(100),
+  priority: z.number().min(1, { message: "You need to select priority." }).max(100),
+  importance: z.number().min(1, { message: "You need to select importance." }).max(100),
   dueDate: z.date().min(new Date()).optional(),
   badges: z.string().optional(),
   tags: z.array(
@@ -55,6 +56,13 @@ export type TagInputType = {
 };
 
 export enum PriorityEnum {
+  HIGH = 95,
+  MEDIUM = 50,
+  LOW = 5,
+  CUSTOM = 0
+}
+
+export enum ImportanceEnum {
   HIGH = 95,
   MEDIUM = 50,
   LOW = 5,

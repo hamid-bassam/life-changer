@@ -8,7 +8,8 @@ import prisma from "../../../../lib/prisma";
 
 
 
-export default async function Goal({ params }: { params: { id: string } }) {
+export default async function Goal({ params, searchParams }: { params: { id: string }, searchParams: { [key: string]: string | string[] | undefined } }) {
+
 
 
   const { getUser } = getKindeServerSession();
@@ -25,12 +26,23 @@ export default async function Goal({ params }: { params: { id: string } }) {
 
     }
   });
+  const { parentId } = searchParams ?? { parentId: "" };
+
+  const parentGoal = await prisma.goal.findUnique({
+    where: {
+      id: parentId as string,
+    },
+    select: {
+      id: true,
+      depth: true
+    }
+  });
 
   return (
 
     <div className=' flex-1 min-h-full bg-transparent px-6'>
       {params.id === 'create' ? (
-        <CreateGoalForm userId={user.id} />
+        <CreateGoalForm userId={user.id} parentGoal={parentGoal} />
       ) : (
         <EditGoalForm goalId={params.id} goal={goal} />
       )}

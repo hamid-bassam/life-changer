@@ -39,9 +39,10 @@ export const GoalForm: React.FC<GoalFormProps> = ({ createOrEdit, form, onSubmit
             <DescriptionField control={form.control} />
             <div className="grid max-sm:grid-cols-2 grid-cols-2 gap-4">
               <StatusField control={form.control} />
+              <DueDateField control={form.control} />
               <CustomGoalPriority name="priority" customPriority={form.getValues('priority')} control={form.control} />
+              <CustomGoalPriority name="importance" customPriority={form.getValues('importance')} control={form.control} />
             </div>
-            <DueDateField control={form.control} />
             <TagsField control={form.control} tags={tags} setTags={setTags} />
             <Button type="submit" className="ml-auto" disabled={isSubmitting}>
               {isSubmitting ? "Saving..." : createOrEdit === 'edit' ? "Update Goal" : "Create Goal"}

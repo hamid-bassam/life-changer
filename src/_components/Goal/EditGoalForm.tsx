@@ -18,7 +18,8 @@ export function EditGoalForm({ goalId, goal }: { goalId: string, goal: (GoalType
       title: goal?.title || "",
       description: goal?.description || "",
       status: goal?.status as "pending" | "in-progress" | "completed" || "pending",  // Default status
-      priority: goal?.priority || PriorityEnum.MEDIUM,        // Default priority
+      priority: goal?.priority || PriorityEnum.MEDIUM,
+      importance: goal?.importance || PriorityEnum.MEDIUM,   // Default priority
       dueDate: goal?.dueDate || undefined,
       tags: goal?.tags.map(tag => ({
         name: tag.name || undefined,

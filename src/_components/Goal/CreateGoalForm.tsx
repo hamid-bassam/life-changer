@@ -11,9 +11,11 @@ import { GoalForm } from "./GoalForm";
 import { GoalFormSchema, PriorityEnum, TagInputType } from "./GoalInputUtils";
 
 
-export function CreateGoalForm({ userId }: { userId: string }) {
+export function CreateGoalForm({ userId, parentGoal }: { userId: string, parentGoal: { id: string, depth: number } | null }) {
 
   const searchParams = useSearchParams();   //create or update goal id
+  console.log("parent", parentGoal?.id);
+  console.log("parent depth", parentGoal?.depth);
 
   const form = useForm<z.infer<typeof GoalFormSchema>>({
     resolver: zodResolver(GoalFormSchema),
@@ -22,6 +24,7 @@ export function CreateGoalForm({ userId }: { userId: string }) {
       description: "",
       status: "pending",
       priority: PriorityEnum.MEDIUM,
+      importance: PriorityEnum.MEDIUM,
       dueDate: undefined,
       tags: [],
     },
@@ -38,9 +41,12 @@ export function CreateGoalForm({ userId }: { userId: string }) {
         ...data,
         user: { connect: { id: userId } },
         isChild: Boolean(searchParams.get("parentId")),
-        parentGoal: searchParams.get("parentId")
-          ? { connect: { id: searchParams.get("parentId") || undefined } }
-          : undefined,
+        parentGoal: parentGoal?.id ? { connect: { id: parentGoal.id } } : undefined,
+        depth: parentGoal?.depth || parentGoal?.depth === 0 ? parentGoal.depth + 1 : 0,
+        // parentGoal: searchParams.get("parentId")
+        //   ? { connect: { id: searchParams.get("parentId") || undefined } }
+        //   : undefined,
+
         tags: undefined
       };
 
@@ -49,7 +55,7 @@ export function CreateGoalForm({ userId }: { userId: string }) {
         color: tag.color,
         variant: tag.variant,
       }));
-
+      console.log("data xx ", goalDto);
       await createGoal(goalDto, tagData);
 
       toastSonner.success('Success', {

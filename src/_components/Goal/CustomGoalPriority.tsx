@@ -62,7 +62,8 @@ export const CustomGoalPriority = <TFieldValues extends FieldValues>({
     setState({
       ...state,
       isCustom: priority === PriorityEnum.CUSTOM,
-      customValue: priority === PriorityEnum.CUSTOM ? state.customValue : priority
+      // customValue: priority === PriorityEnum.CUSTOM ? state.customValue : priority
+      customValue: priority,
     });
     field.onChange(priority);
   };
@@ -80,7 +81,7 @@ export const CustomGoalPriority = <TFieldValues extends FieldValues>({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Priority</FormLabel>
+          <FormLabel>{name.charAt(0).toUpperCase() + name.slice(1)}</FormLabel>
           <FormControl>
             <div className="flex flex-col gap-4">
               <Select
@@ -100,7 +101,7 @@ export const CustomGoalPriority = <TFieldValues extends FieldValues>({
               </Select>
               {state.isCustom && (
                 <div className="flex flex-col gap-4">
-                  <FormLabel htmlFor="customPriority">Custom Priority</FormLabel>
+                  <FormLabel htmlFor="customPriority">{"Custom " + name}</FormLabel>
 
                   <Slider
                     rangeColor={getSliderGradientClass(state.customValue)}
