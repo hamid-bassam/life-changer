@@ -109,3 +109,57 @@ export async function deleteGoal(
   revalidatePath(`/goals`);
 
 }
+
+export async function createTask(
+  data: Prisma.TaskCreateInput,
+  parentgoal: { connect: { id: string } },
+  tags: Prisma.TagCreateManyInput[]
+) {
+  const task = await prisma.task.create({
+    data: {
+      ...data,
+      goal: parentgoal,
+      tags: {
+        connectOrCreate: tags?.map(tag => ({
+          where: {
+            name_color_variant: {
+              name: tag.name,
+              color: tag.color || "bg-primary",
+              variant: tag.variant || BadgeVariant.DEFAULT,
+            },
+          },
+          create: {
+            name: tag.name,
+            color: tag.color || "bg-primary",
+            variant: tag.variant || BadgeVariant.DEFAULT,
+          },
+        })),
+      }
+    }
+    ,
+  });
+  revalidatePath(`/tasks`);
+  return task;
+}
+
+export async function editTask(
+  id: string,
+  data: Prisma.TaskUpdateInput
+) {
+  const task = await prisma.task.update({
+    where: { id: id },
+    data: data
+  });
+  revalidatePath(`/tasks`);
+  return task;
+}
+
+export async function deleteTask(
+  id: string
+) {
+  await prisma.task.delete({
+    where: { id: id }
+  });
+  revalidatePath(`/tasks`);
+
+}

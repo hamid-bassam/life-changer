@@ -1,13 +1,16 @@
-"use client"
-import { useState } from "react";
-import { ColorPicker } from "../../../_components/ColorPicker";
+
+import { Spinner } from "@nextui-org/react";
+import { Suspense } from "react";
+import { SelectParentGoal } from "../../../_components/Goal/SelectParentGoal";
 
 export default function TestComponentPage() {
-  const [color, setColor] = useState("");
+
   return (
     <>
-      <p>{color}</p>
-      <ColorPicker onChange={(e) => setColor(e)} />
+      <Suspense fallback={<div className="flex-1 flex min-h-full items-center justify-center"><Spinner color="primary" /></div>}  >
+        <SelectParentGoal />
+      </Suspense>
+
     </>
   );
 }
