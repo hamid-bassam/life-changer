@@ -50,6 +50,7 @@ model Goal {
   description  String?
   status       String    @default("pending")
   priority     Int
+  depth        Int       @default(0)
   dueDate      DateTime?
   isChild      Boolean   @default(false)
   badges       Json?
@@ -69,21 +70,28 @@ model Goal {
 }
 
 model Task {
-  id          String    @id @default(uuid())
-  title       String
-  description String?
-  status      String    @default("pending")
-  dueDate     DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  notes       Note[]
-  goalId      String?
-  goal        Goal?     @relation(fields: [goalId], references: [id])
-  userId      String
-  user        User      @relation(fields: [userId], references: [id])
+  id           String    @id @default(uuid())
+  ref          String
+  title        String
+  description  String?
+  status       String    @default("pending")
+  dueDate      DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  depth        Int       @default(0)
+  notes        Note[]
+  goalId       String?
+  goal         Goal?     @relation(fields: [goalId], references: [id])
+  userId       String
+  user         User      @relation(fields: [userId], references: [id])
+  subTasks     Task[]    @relation("TaskToSubTasks")
+  parentTask   Task?     @relation("TaskToSubTasks", fields: [parentTaskId], references: [id])
+  parentTaskId String?
+  tags         Tag[]     @relation("TaskTags")
 
   @@index([goalId])
   @@index([userId])
+  @@index([parentTaskId])
 }
 
 model Tag {
@@ -94,6 +102,7 @@ model Tag {
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
   goals     Goal[]        @relation("GoalTags")
+  tasks     Task[]        @relation("TaskTags")
 
   @@unique([name, color, variant])
 }
