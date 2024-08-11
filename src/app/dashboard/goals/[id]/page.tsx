@@ -28,21 +28,22 @@ export default async function Goal({ params, searchParams }: { params: { id: str
   });
   const { parentId } = searchParams ?? { parentId: "" };
 
-  const parentGoal = await prisma.goal.findUnique({
-    where: {
-      id: parentId as string,
-    },
-    select: {
-      id: true,
-      depth: true
-    }
-  });
+  const parentGoal = parentId &&
+    await prisma.goal.findUnique({
+      where: {
+        id: parentId as string,
+      },
+      select: {
+        id: true,
+        depth: true
+      }
+    });
 
   return (
 
     <div className=' flex-1 min-h-full bg-transparent px-6'>
       {params.id === 'create' ? (
-        <CreateGoalForm userId={user.id} parentGoal={parentGoal} />
+        <CreateGoalForm userId={user.id} parentGoal={parentGoal || null} />
       ) : (
         <EditGoalForm goalId={params.id} goal={goal} />
       )}
