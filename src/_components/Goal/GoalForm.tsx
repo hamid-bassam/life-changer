@@ -5,6 +5,7 @@ import {
 } from "@/components/ui/form";
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../components/ui/accordion";
 import { CustomGoalPriority } from "./CustomGoalPriority";
 import { DescriptionField, DueDateField, GoalFormSchema, StatusField, TagInputType, TagsField, TitleField } from "./GoalInputUtils";
 
@@ -37,13 +38,31 @@ export const GoalForm: React.FC<GoalFormProps> = ({ createOrEdit, form, onSubmit
             }} className="w-full space-y-6 flex flex-col">
             <TitleField control={form.control} />
             <DescriptionField control={form.control} />
-            <div className="grid max-sm:grid-cols-2 grid-cols-2 gap-4">
+            <Accordion type="single" defaultValue="acc-1" collapsible>
+              <AccordionItem value="acc-1">
+                <AccordionTrigger>Advanced Settings</AccordionTrigger>
+                <AccordionContent>
+                  <div className="flex flex-col gap-4">
+
+                    <div className="grid max-sm:grid-cols-2 grid-cols-2 gap-4">
+                      <StatusField control={form.control} />
+                      <DueDateField control={form.control} />
+                      <CustomGoalPriority name="priority" customPriority={form.getValues('priority')} control={form.control} />
+                      <CustomGoalPriority name="importance" customPriority={form.getValues('importance')} control={form.control} />
+                    </div>
+                    <TagsField control={form.control} tags={tags} setTags={setTags} />
+
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+            {/* <div className="grid max-sm:grid-cols-2 grid-cols-2 gap-4">
               <StatusField control={form.control} />
               <DueDateField control={form.control} />
               <CustomGoalPriority name="priority" customPriority={form.getValues('priority')} control={form.control} />
               <CustomGoalPriority name="importance" customPriority={form.getValues('importance')} control={form.control} />
             </div>
-            <TagsField control={form.control} tags={tags} setTags={setTags} />
+            <TagsField control={form.control} tags={tags} setTags={setTags} /> */}
             <Button type="submit" className="ml-auto" disabled={isSubmitting}>
               {isSubmitting ? "Saving..." : createOrEdit === 'edit' ? "Update Goal" : "Create Goal"}
             </Button>
