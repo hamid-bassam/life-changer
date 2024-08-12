@@ -20,6 +20,7 @@ import { Control } from "react-hook-form";
 import { z } from "zod";
 import { cn } from "../../lib/utils";
 import { TagsInput } from "../TagsInput";
+import { SubGoalCreateFormComponent } from "./SubGoalCreateFormComponent";
 
 
 
@@ -28,7 +29,23 @@ export type GoalInputProps = {
   userId?: string;
 };
 
-
+export const SubGoalFormSchema = z.object({
+  title: z.string().min(1, { message: "Title is required" }),
+  description: z.string().optional(),
+  status: z.enum(["pending", "in-progress", "completed"], {
+    required_error: "You need to select a status.",
+  }),
+  priority: z.number().min(1, { message: "You need to select priority." }).max(100),
+  importance: z.number().min(1, { message: "You need to select importance." }).max(100),
+  dueDate: z.date().min(new Date()).optional(),
+  tags: z.array(
+    z.object({
+      name: z.string(),
+      color: z.string().optional(),
+      variant: z.enum(["DEFAULT", "OUTLINE", "SECONDARY", "DESTRUCTIVE"]).optional(),
+    })
+  ).optional(),
+});
 export const GoalFormSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
   description: z.string().optional(),
@@ -47,12 +64,43 @@ export const GoalFormSchema = z.object({
 
     })
   ).optional(),
+  subGoals: z.array(
+    z.object({
+      title: z.string().min(1, { message: "Title is required" }),
+      description: z.string().optional(),
+      status: z.enum(["pending", "in-progress", "completed"], {
+        required_error: "You need to select a status.",
+      }),
+      priority: z.number().min(1, { message: "You need to select priority." }).max(100),
+      importance: z.number().min(1, { message: "You need to select importance." }).max(100),
+      dueDate: z.date().min(new Date()).optional(),
+      badges: z.string().optional(),
+      tags: z.array(
+        z.object({
+          name: z.string(),
+          color: z.string().optional(),
+          variant: z.enum(["DEFAULT", "OUTLINE", "SECONDARY", "DESTRUCTIVE"]).optional(),
+        })
+      ).optional()
+    })
+  ).optional(),
 });
 
 export type TagInputType = {
   name: string,
   color?: string,
   variant?: BadgeVariant
+};
+
+
+export type SubGoalInputType = {
+  title: string;
+  description?: string;
+  status: "pending" | "in-progress" | "completed";
+  priority: number;
+  importance: number;
+  dueDate?: Date;
+  tags?: TagInputType[];
 };
 
 export enum PriorityEnum {
@@ -263,3 +311,30 @@ export const TagsField = (props: TagsFieldProps) => (
     )}
   />
 );
+
+export type SubGoalsFieldProps = {
+  control: Control<z.infer<typeof GoalFormSchema>>;
+  subGoals: SubGoalInputType[];
+  setSubGoals: React.Dispatch<React.SetStateAction<SubGoalInputType[]>>;
+};
+// export const SubGoalsField = (props: SubGoalsFieldProps) => (
+//   <FormField
+//     control={props.control}
+//     name="subGoals"
+//     render={({ field }) => (
+//       <FormItem>
+//         <FormLabel>Badges</FormLabel>
+//         <FormControl>
+//           <SubGoalCreateFormComponent
+//             subGoals={props.subGoals}
+//             setSubGoals={(newSubGoals) => {
+//               props.setSubGoals(newSubGoals);
+//               field.onChange(newSubGoals || []);
+//             }}
+//           />
+//         </FormControl>
+//         <FormMessage />
+//       </FormItem>
+//     )}
+//   />
+// );

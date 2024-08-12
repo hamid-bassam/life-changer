@@ -2,7 +2,7 @@
 import { BadgeVariant, Prisma } from "@prisma/client";
 
 import { revalidatePath } from "next/cache";
-import { TagInputType } from "../_components/Goal/GoalInputUtils";
+import { SubGoalInputType, TagInputType } from "../_components/Goal/GoalInputUtils";
 import prisma from "../lib/prisma";
 import { HierarchicalItem, ItemType } from "../types/hierarchy";
 
@@ -36,7 +36,7 @@ export async function deleteNote(
 
 }
 
-export async function createGoal(data: Prisma.GoalCreateInput, tags: TagInputType[]) {
+export async function createGoal(data: Prisma.GoalCreateInput, tags: TagInputType[], subGoals: SubGoalInputType[]) {
   const goal = await prisma.goal.create({
     data: {
       ...data,
@@ -56,9 +56,29 @@ export async function createGoal(data: Prisma.GoalCreateInput, tags: TagInputTyp
             variant: tag.variant,
           },
         })),
-
-
-
+      },
+      subGoals: subGoals && {
+        create: subGoals.map(subGoal => ({
+          ...subGoal,
+          user: data.user,
+          depth: (data.depth ?? 0) + 1,
+          tags: {
+            connectOrCreate: subGoal.tags && subGoal.tags.map(tag => ({
+              where: {
+                name_color_variant: {
+                  name: tag.name,
+                  color: tag.color || "",
+                  variant: tag.variant || BadgeVariant.DEFAULT,
+                },
+              },
+              create: {
+                name: tag.name,
+                color: tag.color,
+                variant: tag.variant,
+              },
+            })),
+          },
+        }))
       }
     },
 

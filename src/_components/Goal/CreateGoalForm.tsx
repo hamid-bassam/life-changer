@@ -7,8 +7,9 @@ import { useForm } from "react-hook-form";
 import { toast as toastSonner } from 'sonner';
 import { z } from "zod";
 import { createGoal } from "../../actions/actions";
+import { useGoalCreateStore } from "../../stores/goal-create-store";
 import { GoalForm } from "./GoalForm";
-import { GoalFormSchema, PriorityEnum, TagInputType } from "./GoalInputUtils";
+import { GoalFormSchema, PriorityEnum, SubGoalFormSchema, SubGoalInputType, TagInputType } from "./GoalInputUtils";
 
 
 export function CreateGoalForm({ userId, parentGoal }: { userId: string, parentGoal: { id: string, depth: number } | null }) {
@@ -16,6 +17,8 @@ export function CreateGoalForm({ userId, parentGoal }: { userId: string, parentG
   const searchParams = useSearchParams();   //create or update goal id
   console.log("parent", parentGoal?.id);
   console.log("parent depth", parentGoal?.depth);
+
+  const { subGoals: z_subgoals, setTags: z_setTags } = useGoalCreateStore();
 
   const form = useForm<z.infer<typeof GoalFormSchema>>({
     resolver: zodResolver(GoalFormSchema),
@@ -30,7 +33,20 @@ export function CreateGoalForm({ userId, parentGoal }: { userId: string, parentG
     },
   });
 
+  const subGoalForm = useForm<z.infer<typeof SubGoalFormSchema>>({
+    resolver: zodResolver(SubGoalFormSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      status: "pending",
+      priority: PriorityEnum.MEDIUM,
+      importance: PriorityEnum.MEDIUM,
+      dueDate: undefined,
+      tags: [],
+    },
+  });
   const [tags, setTags] = useState<TagInputType[]>([]);
+  const [subGoals, setSubGoals] = useState<SubGoalInputType[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const onSubmit = async (data: z.infer<typeof GoalFormSchema>) => {
@@ -47,7 +63,8 @@ export function CreateGoalForm({ userId, parentGoal }: { userId: string, parentG
         //   ? { connect: { id: searchParams.get("parentId") || undefined } }
         //   : undefined,
 
-        tags: undefined
+        tags: undefined,
+        subGoals: undefined,
       };
 
       const tagData = tags.map(tag => ({
@@ -55,8 +72,11 @@ export function CreateGoalForm({ userId, parentGoal }: { userId: string, parentG
         color: tag.color,
         variant: tag.variant,
       }));
+
+
       console.log("data xx ", goalDto);
-      await createGoal(goalDto, tagData);
+      console.log("sub goals", z_subgoals);
+      await createGoal(goalDto, tagData, z_subgoals);
 
       toastSonner.success('Success', {
         description: "Goal created successfully!",
