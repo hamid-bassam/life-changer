@@ -1,7 +1,7 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BadgeVariant, Goal as GoalType, Prisma, Tag } from "@prisma/client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -12,8 +12,9 @@ import { GoalFormSchema, PriorityEnum, SubGoalInputType, TagInputType } from "./
 
 export function EditGoalForm({ goalId, goal }: { goalId: string, goal: (GoalType & { tags: Tag[] } & { subGoals: (GoalType & { tags: Tag[] })[] }) | null }) {
 
-  const { subGoals: z_subgoals, setTags: z_setTags, setSubGoals: z_setSubGoals } = useGoalCreateStore();
+  const { subGoals: z_subgoals, setTags: z_setTags, setSubGoals: z_setSubGoals, clearSubGoals: z_clearSubGoals } = useGoalCreateStore();
   console.log("goal from page [id]", goal);
+  console.log("store", z_subgoals);
 
   const form = useForm<z.infer<typeof GoalFormSchema>>({
     resolver: zodResolver(GoalFormSchema),
@@ -36,9 +37,11 @@ export function EditGoalForm({ goalId, goal }: { goalId: string, goal: (GoalType
 
   const [tags, setTags] = useState<TagInputType[]>(form.getValues('tags') || []);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const hasInitializedSubGoals = useRef(false);
   useEffect(() => {
-    if (z_subgoals.length === 0) {
+    if ((!hasInitializedSubGoals.current)) {
+      z_clearSubGoals();
+      console.log("SubGoals after cleaning:", z_subgoals);
       const subGoals: SubGoalInputType[] = goal?.subGoals.map(subGoal => ({
         id: subGoal.id,
         importance: subGoal.importance,
@@ -55,9 +58,12 @@ export function EditGoalForm({ goalId, goal }: { goalId: string, goal: (GoalType
       })) || [];
 
       z_setSubGoals(subGoals);
+      hasInitializedSubGoals.current = true;
 
     }
-  }, [z_subgoals, z_setSubGoals, goal?.subGoals]);
+  }, [z_subgoals, goal, z_setSubGoals]);
+
+
 
   const onSubmit = async (data: z.infer<typeof GoalFormSchema>) => {
     try {
@@ -78,6 +84,7 @@ export function EditGoalForm({ goalId, goal }: { goalId: string, goal: (GoalType
 
       await editGoalV2(goalId, goalDto, tagData, z_subgoals);
 
+
       toast.success('Success', {
         description: "Goal updated successfully!",
       });
@@ -88,10 +95,15 @@ export function EditGoalForm({ goalId, goal }: { goalId: string, goal: (GoalType
       });
     } finally {
       setIsSubmitting(false);
+      z_clearSubGoals();
+      console.log("SubGoals after reset:", z_subgoals);
     }
 
 
   };
+  useEffect(() => {
+    console.log("SubGoals in the store updated:", z_subgoals);
+  }, [z_subgoals]);
 
   return (
     <GoalForm createOrEdit="edit" form={form} onSubmit={onSubmit} tags={tags} setTags={setTags} isSubmitting={isSubmitting} />

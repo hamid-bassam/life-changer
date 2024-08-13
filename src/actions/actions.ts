@@ -327,6 +327,24 @@ export async function editGoalV2(
   subGoals: SubGoalInputType[],
 ) {
   console.log("data", subGoals);
+
+
+  const existingGoal = await prisma.goal.findUnique({
+    where: { id: id },
+    include: {
+      subGoals: {
+        select: {
+          id: true,
+          title: true,
+        },
+      },
+    },
+  });
+
+  if (!existingGoal) {
+    throw new Error(`Goal with ID ${id} does not exist`);
+  }
+  console.log("existingGoal", existingGoal);
   const goal = await prisma.goal.update({
     where: { id: id },
     data: {
@@ -339,6 +357,21 @@ export async function editGoalV2(
     },
   });
   revalidatePath(`/goals`);
+
+  const response = await prisma.goal.findUnique({
+    where: { id: goal.id },
+    include: {
+
+      subGoals: {
+        select: {
+          id: true,
+          title: true,
+        }
+      }
+    }
+  });
+
+  console.log("response", response);
   return goal;
 }
 
@@ -364,28 +397,22 @@ function processSubGoals(subGoals: SubGoalInputType[], parentId: string, depth: 
   const subGoalsWithoutId = subGoals.filter(subGoal => !subGoal.id);
 
   return {
-    upsert: subGoalsWithId.map((subGoal) => ({
+    update: subGoalsWithId.map(subGoal => ({
       where: { id: subGoal.id as string },
-      update: {
+      data: {
         ...subGoal,
+        depth: depth + 1,
         tags: {
           set: [],
           connectOrCreate: mapTagsToConnectOrCreate(subGoal.tags || []),
         },
       },
-      create: {
-        ...subGoal,
-        user: user,
-        depth: depth + 1,
-        tags: {
-          connectOrCreate: mapTagsToConnectOrCreate(subGoal.tags || []),
-        },
-      },
     })),
-    create: subGoalsWithoutId.map((subGoal) => ({
+    create: subGoalsWithoutId.map(subGoal => ({
       ...subGoal,
       user: user,
       depth: depth + 1,
+      // Ensure the parentId is correctly set
       tags: {
         connectOrCreate: mapTagsToConnectOrCreate(subGoal.tags || []),
       },
