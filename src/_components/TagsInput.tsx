@@ -22,7 +22,6 @@ export const TagsInput = ({ tags, setTags }: { tags: TagInputType[], setTags: Re
   }
 
   function removeTag(index: number) {
-    console.log("clicked rm")
     setTags(tags.filter((_, i) => i !== index))
   }
 

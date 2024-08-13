@@ -73,8 +73,6 @@ export const CustomGoalPriority = <TFieldValues extends FieldValues>({
     setState((prev) => ({ ...prev, customValue: newValue }))
     field.onChange(newValue);
   };
-
-  console.log("render comp")
   return (
     <FormField
       control={control}

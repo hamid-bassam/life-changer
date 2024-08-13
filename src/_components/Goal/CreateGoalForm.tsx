@@ -15,9 +15,6 @@ import { GoalFormSchema, PriorityEnum, SubGoalFormSchema, SubGoalInputType, TagI
 export function CreateGoalForm({ userId, parentGoal }: { userId: string, parentGoal: { id: string, depth: number } | null }) {
 
   const searchParams = useSearchParams();   //create or update goal id
-  console.log("parent", parentGoal?.id);
-  console.log("parent depth", parentGoal?.depth);
-
   const { subGoals: z_subgoals, setTags: z_setTags } = useGoalCreateStore();
 
   const form = useForm<z.infer<typeof GoalFormSchema>>({
@@ -71,10 +68,6 @@ export function CreateGoalForm({ userId, parentGoal }: { userId: string, parentG
         color: tag.color,
         variant: tag.variant,
       }));
-
-
-      console.log("data xx ", goalDto);
-      console.log("sub goals", z_subgoals);
       await createGoal(goalDto, tagData, z_subgoals);
 
       toastSonner.success('Success', {

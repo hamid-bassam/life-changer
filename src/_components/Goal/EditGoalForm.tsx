@@ -13,9 +13,6 @@ import { GoalFormSchema, PriorityEnum, SubGoalInputType, TagInputType } from "./
 export function EditGoalForm({ goalId, goal }: { goalId: string, goal: (GoalType & { tags: Tag[] } & { subGoals: (GoalType & { tags: Tag[] })[] }) | null }) {
 
   const { subGoals: z_subgoals, setTags: z_setTags, setSubGoals: z_setSubGoals, clearSubGoals: z_clearSubGoals } = useGoalCreateStore();
-  console.log("goal from page [id]", goal);
-  console.log("store", z_subgoals);
-
   const form = useForm<z.infer<typeof GoalFormSchema>>({
     resolver: zodResolver(GoalFormSchema),
 
@@ -41,7 +38,7 @@ export function EditGoalForm({ goalId, goal }: { goalId: string, goal: (GoalType
   useEffect(() => {
     if ((!hasInitializedSubGoals.current)) {
       z_clearSubGoals();
-      console.log("SubGoals after cleaning:", z_subgoals);
+
       const subGoals: SubGoalInputType[] = goal?.subGoals.map(subGoal => ({
         id: subGoal.id,
         importance: subGoal.importance,
@@ -75,7 +72,7 @@ export function EditGoalForm({ goalId, goal }: { goalId: string, goal: (GoalType
         tags: undefined,
         subGoals: undefined,
       };
-      console.log("goalDto", goalDto);
+
       const tagData = tags.map(tag => ({
         name: tag.name,
         color: tag.color,
@@ -96,14 +93,10 @@ export function EditGoalForm({ goalId, goal }: { goalId: string, goal: (GoalType
     } finally {
       setIsSubmitting(false);
       z_clearSubGoals();
-      console.log("SubGoals after reset:", z_subgoals);
     }
 
 
   };
-  useEffect(() => {
-    console.log("SubGoals in the store updated:", z_subgoals);
-  }, [z_subgoals]);
 
   return (
     <GoalForm createOrEdit="edit" form={form} onSubmit={onSubmit} tags={tags} setTags={setTags} isSubmitting={isSubmitting} />

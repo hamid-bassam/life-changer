@@ -326,25 +326,13 @@ export async function editGoalV2(
   tags: TagInputType[],
   subGoals: SubGoalInputType[],
 ) {
-  console.log("data", subGoals);
-
-
   const existingGoal = await prisma.goal.findUnique({
     where: { id: id },
-    include: {
-      subGoals: {
-        select: {
-          id: true,
-          title: true,
-        },
-      },
-    },
   });
 
   if (!existingGoal) {
     throw new Error(`Goal with ID ${id} does not exist`);
   }
-  console.log("existingGoal", existingGoal);
   const goal = await prisma.goal.update({
     where: { id: id },
     data: {
@@ -357,21 +345,6 @@ export async function editGoalV2(
     },
   });
   revalidatePath(`/goals`);
-
-  const response = await prisma.goal.findUnique({
-    where: { id: goal.id },
-    include: {
-
-      subGoals: {
-        select: {
-          id: true,
-          title: true,
-        }
-      }
-    }
-  });
-
-  console.log("response", response);
   return goal;
 }
 

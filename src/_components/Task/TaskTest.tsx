@@ -17,7 +17,6 @@ export const TaskTest = () => {
 
   const handleSubmit = () => {
     console.log('Selected Parent:', selectedParent);
-    // Logique de soumission du formulaire
   };
 
   return (

@@ -58,8 +58,6 @@ const GenericForm: React.FC<GenericFormProps> = ({ tree }) => {
 
   const onSubmit = (values: z.infer<typeof GenericFormSchema>) => {
     // const { title, description, status, dueDate, tags } = values;
-    console.log("im here");
-    console.log('Form values:', values);
     console.log('Selected Parent:', selectedParent);
     // Logique de soumission du formulaire
   };

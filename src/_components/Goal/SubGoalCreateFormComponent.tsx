@@ -35,7 +35,7 @@ export const SubGoalCreateFormComponent = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const onSubmit = async (data: z.infer<typeof SubGoalFormSchema>) => {
-    console.log('SubGoal Data from 2nd:', data);
+
     addSubGoal(data); // Ajouter le sous-objectif au store Zustand
     subGoalForm.reset();
 
