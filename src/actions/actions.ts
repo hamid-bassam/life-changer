@@ -57,7 +57,7 @@ export async function createGoal(data: Prisma.GoalCreateInput, tags: TagInputTyp
           },
         })),
       },
-      subGoals: subGoals && {
+      subGoals: {
         create: subGoals.map(subGoal => ({
           ...subGoal,
           user: data.user,
@@ -90,7 +90,9 @@ export async function createGoal(data: Prisma.GoalCreateInput, tags: TagInputTyp
 export async function editGoal(
   id: string,
   data: Prisma.GoalUpdateInput,
-  tags: TagInputType[]
+
+  tags: TagInputType[],
+  subGoals: SubGoalInputType[],
 ) {
   const goal = await prisma.goal.update({
     where: { id: id },
@@ -100,6 +102,7 @@ export async function editGoal(
         // Disconnect all existing tags first (optional, depending on desired behavior)
         set: [],
         // Then connect or create new tags
+
         connectOrCreate: tags.map(tag => ({
           where: {
             name_color_variant: {
@@ -114,12 +117,48 @@ export async function editGoal(
             variant: tag.variant
           },
         })),
-      }
+      },
+      subGoals: {
+        // Disconnect all existing subGoals first (optional, depending on desired behavior)
+        set: [],
+        // Then connect or create new subGoals
+        connectOrCreate:
+
+          subGoals.map(subGoal => ({
+            where: {
+              id: subGoal.id || 'no-id-subgoal-should-create',
+            },
+            create: {
+              ...subGoal,
+              user: data.user || { connect: { id: 'subGoal.user-not-found' } },
+              depth: (data.depth as number ?? 0) + 1,
+              tags: {
+                connectOrCreate: subGoal.tags && subGoal.tags.map(tag => ({
+                  where: {
+                    name_color_variant: {
+                      name: tag.name,
+                      color: tag.color || "",
+                      variant: tag.variant || BadgeVariant.DEFAULT,
+                    },
+                  },
+                  create: {
+                    name: tag.name,
+                    color: tag.color,
+                    variant: tag.variant,
+                  },
+                })),
+              },
+            },
+          }))
+        ,
+      },
     },
   });
   revalidatePath(`/goals`);
   return goal;
 }
+
+
 
 export async function deleteGoal(
   id: string
@@ -274,3 +313,82 @@ export async function getHierarchicalItems(): Promise<HierarchicalItem[]> {
 }
 
 
+/**
+ * 
+ * 
+ * 
+ */
+
+export async function editGoalV2(
+  id: string,
+  data: Prisma.GoalUpdateInput,
+
+  tags: TagInputType[],
+  subGoals: SubGoalInputType[],
+) {
+  console.log("data", subGoals);
+  const goal = await prisma.goal.update({
+    where: { id: id },
+    data: {
+      ...data,
+      tags: {
+        set: [],
+        connectOrCreate: mapTagsToConnectOrCreate(tags),
+      },
+      subGoals: processSubGoals(subGoals, id, data.depth as number ?? 0, data.user as Prisma.UserCreateNestedOneWithoutGoalsInput),
+    },
+  });
+  revalidatePath(`/goals`);
+  return goal;
+}
+
+function mapTagsToConnectOrCreate(tags: TagInputType[]) {
+  return tags.map(tag => ({
+    where: {
+      name_color_variant: {
+        name: tag.name,
+        color: tag.color || "",
+        variant: tag.variant || BadgeVariant.DEFAULT,
+      },
+    },
+    create: {
+      name: tag.name,
+      color: tag.color,
+      variant: tag.variant,
+    },
+  }));
+}
+
+function processSubGoals(subGoals: SubGoalInputType[], parentId: string, depth: number, user: Prisma.UserCreateNestedOneWithoutGoalsInput) {
+  const subGoalsWithId = subGoals.filter(subGoal => subGoal.id);
+  const subGoalsWithoutId = subGoals.filter(subGoal => !subGoal.id);
+
+  return {
+    upsert: subGoalsWithId.map((subGoal) => ({
+      where: { id: subGoal.id as string },
+      update: {
+        ...subGoal,
+        tags: {
+          set: [],
+          connectOrCreate: mapTagsToConnectOrCreate(subGoal.tags || []),
+        },
+      },
+      create: {
+        ...subGoal,
+        user: user,
+        depth: depth + 1,
+        tags: {
+          connectOrCreate: mapTagsToConnectOrCreate(subGoal.tags || []),
+        },
+      },
+    })),
+    create: subGoalsWithoutId.map((subGoal) => ({
+      ...subGoal,
+      user: user,
+      depth: depth + 1,
+      tags: {
+        connectOrCreate: mapTagsToConnectOrCreate(subGoal.tags || []),
+      },
+    })),
+  };
+}

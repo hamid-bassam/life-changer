@@ -46,7 +46,6 @@ export function CreateGoalForm({ userId, parentGoal }: { userId: string, parentG
     },
   });
   const [tags, setTags] = useState<TagInputType[]>([]);
-  const [subGoals, setSubGoals] = useState<SubGoalInputType[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const onSubmit = async (data: z.infer<typeof GoalFormSchema>) => {

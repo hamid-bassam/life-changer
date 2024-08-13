@@ -94,6 +94,7 @@ export type TagInputType = {
 
 
 export type SubGoalInputType = {
+  id?: string;
   title: string;
   description?: string;
   status: "pending" | "in-progress" | "completed";

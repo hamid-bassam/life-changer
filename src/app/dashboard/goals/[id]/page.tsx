@@ -1,5 +1,6 @@
 
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { CreateGoalForm } from "../../../../_components/Goal/CreateGoalForm";
 import { EditGoalForm } from "../../../../_components/Goal/EditGoalForm";
@@ -17,15 +18,21 @@ export default async function Goal({ params, searchParams }: { params: { id: str
   if (!user) {
     redirect('/welcome');
   }
+  revalidatePath('/goals');
   const goal = await prisma.goal.findUnique({
     where: {
       id: params.id
     },
     include: {
       tags: true,
-
+      subGoals: {
+        include: {
+          tags: true
+        }
+      }
     }
   });
+
   const { parentId } = searchParams ?? { parentId: "" };
 
   const parentGoal = parentId &&
