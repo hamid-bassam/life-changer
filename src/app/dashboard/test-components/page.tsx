@@ -6,6 +6,7 @@ import GenericForm from "../../../_components/GenericForm";
 import { SelectParentGoal } from "../../../_components/Goal/SelectParentGoal";
 import { TreeBuilder } from "../../../_components/TreeBuilder";
 
+
 export default function TestComponentPage() {
 
   return (
@@ -17,9 +18,13 @@ export default function TestComponentPage() {
         <TreeBuilder >
           {({ tree }) => <GenericForm tree={tree} />}
         </TreeBuilder>
-
-
       </Suspense>
+      {/* <Suspense fallback={<div className="flex-1 flex min-h-full items-center justify-center"><Spinner color="primary" /></div>}  >
+        <TreeBuilder >
+          {({ tree }) => <GenericList tree={tree} />}
+        </TreeBuilder>
+      </Suspense> */}
+
 
     </>
   );

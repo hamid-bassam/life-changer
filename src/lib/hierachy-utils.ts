@@ -24,3 +24,18 @@ export function buildTree(items: HierarchicalItem[]): HierarchicalItem[] {
 
   return roots;
 }
+
+
+export function flattenTree(tree: HierarchicalItem[]): HierarchicalItem[] {
+  const result: HierarchicalItem[] = [];
+
+  const flatten = (item: HierarchicalItem) => {
+    result.push(item);
+    item.children?.forEach(flatten);
+  };
+
+  tree.forEach(flatten);
+  console.log('result tree', result);
+
+  return result;
+}

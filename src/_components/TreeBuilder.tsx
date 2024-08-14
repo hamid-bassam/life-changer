@@ -15,5 +15,6 @@ export const TreeBuilder = async ({ children }: TreeBuilderProps) => {
   const items = await getHierarchicalItems(); // Remplacez par votre fonction d'appel API
   const tree = buildTree(items);
 
+
   return children({ tree });
 };
