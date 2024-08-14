@@ -2,15 +2,19 @@
 
 import { CaretSortIcon, DotsHorizontalIcon } from "@radix-ui/react-icons"
 import { ColumnDef } from "@tanstack/react-table"
-import { ChevronDown, ChevronRight, Goal, Paperclip, PenSquare } from "lucide-react"
+import { ChevronDown, ChevronRight, Goal, Paperclip, PenSquare, Plus } from "lucide-react"
 import { Button } from "../../components/ui/button"
 import { Checkbox } from "../../components/ui/checkbox"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../../components/ui/dropdown-menu"
 import { HierarchicalItem, ItemType } from "../../types/hierarchy"
+import { HoveringRow, HoveringTable } from "./data-table-demo"
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
-export const columns: ColumnDef<HierarchicalItem>[] = [
+
+// const columnHelper = createColumnHelper<HoveringRow<HierarchicalItem>>();
+
+export const columns: ColumnDef<HierarchicalItem, any>[] = [
   {
     id: "select",
     accessorKey: "id",
@@ -42,9 +46,31 @@ export const columns: ColumnDef<HierarchicalItem>[] = [
   {
     accessorKey: "type",
     header: () => <div className="text-center" >Type</div>,
-    cell: ({ row }) => {
-      const item = row.original;
+    cell: ({ row, table }) => {
+      const hoveringRow = row as HoveringRow<HierarchicalItem>;
+      const item = hoveringRow.original;
+
       const hasChildren = item.children && item.children.length > 0;
+
+      const handleAddInputClick = (event: React.MouseEvent) => {
+        // Empêche la propagation de l'événement à la ligne
+        event.stopPropagation();
+        console.log("Button clicked in row:", row.original);
+        console.log('clicked plus', row.getValue('title'));
+
+        hoveringRow.addInput();
+        table.resetRowSelection(true); // Deselect all rows
+
+
+      };
+
+      const handleExpandClick = (event: React.MouseEvent) => {
+        //hasChildren ? 
+        event.stopPropagation();
+        hoveringRow.toggleExpanded();
+        table.resetRowSelection(true); // Deselect all rows
+        (table as HoveringTable<HierarchicalItem>).resetAddInput();
+      }
       return (
         <div className="flex items-center ">
 
@@ -54,10 +80,10 @@ export const columns: ColumnDef<HierarchicalItem>[] = [
               <Button
                 variant={"ghost"}
 
-                onClick={hasChildren ? () => row.toggleExpanded() : undefined}
+                onClick={handleExpandClick}
                 aria-hidden={!hasChildren}
                 disabled={!hasChildren}
-                className="w-4 h-4 p-0"
+                className="w-4 h-4 p-0.5"
               >
                 {hasChildren ?
                   (row.getIsExpanded() ? <ChevronDown className="w-full h-full" /> : <ChevronRight className="w-full" />)
@@ -71,9 +97,20 @@ export const columns: ColumnDef<HierarchicalItem>[] = [
                   <PenSquare className="h-5 w-5" /> : row.getValue("type") === ItemType.TASK ?
                     <Paperclip className="h-5 w-5" /> : null
               }
+
+              <Button
+                onClick={handleAddInputClick}
+                variant="ghost"
+                className="w-4 h-4 p-0.5"
+                disabled={!hoveringRow.getIsHovered()}>
+
+                {hoveringRow.getIsHovered() ? <Plus className="w-full h-full" /> : <span className="inline-block h-4 w-4" />}
+
+              </Button>
+
             </div>
           </div>
-        </div>
+        </div >
       )
     }
   },

@@ -35,7 +35,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useMemo } from "react"
 import { HierarchicalItem } from "../../types/hierarchy"
+import { HoveringFeature } from "./tanstack-table-hovering"
+export type HoveringRow<TData> = Row<TData> & {
+  toggleHovered: (toggle?: boolean) => void;
+  getIsHovered: () => boolean;
+  addInput: () => void;
+  getShowInput: () => boolean;
+};
+export interface HoveringTable<TData> extends TableType<TData> {
+  resetAddInput: () => void;
+  getHoveredRows: () => HoveringRow<TData>[];
+  setHoveredRows: (updater: (old: HoveringRow<TData>[]) => HoveringRow<TData>[]) => void;
+}
 
 export function DataTableDemo({ columns, data, roots }: { columns: ColumnDef<HierarchicalItem>[], data: HierarchicalItem[], roots: HierarchicalItem[] }) {
   const [sorting, setSorting] = React.useState<SortingState>([])
@@ -43,10 +56,11 @@ export function DataTableDemo({ columns, data, roots }: { columns: ColumnDef<Hie
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
 
-
+  const columnsMemo = useMemo(() => columns, []);
+  const [dataMemo, setDataMemo] = React.useState<HierarchicalItem[]>(data);
   const table = useReactTable({
-    data,
-    columns,
+    data: dataMemo,
+    columns: columnsMemo,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -64,22 +78,43 @@ export function DataTableDemo({ columns, data, roots }: { columns: ColumnDef<Hie
     },
     getRowId: (row) => row.id,
     getSubRows: (row) => row.children,
-  })
-  const rows = table.getRowModel().rows;
-  console.log('rows', rows);
+    _features: [HoveringFeature],
+  }) as HoveringTable<HierarchicalItem>;
 
 
-  const renderRows = (rows: Row<HierarchicalItem>[]) => {
+
+  const renderRows = (rows: HoveringRow<HierarchicalItem>[]) => {
+
+
     return rows.map((row) => (
       <React.Fragment key={row.id}>
-        <TableRow>
+        <TableRow
+          // hover que pour le row mais pas les sous-lignes
+          data-state={row.getIsSelected() && "selected"}
+          onMouseEnter={() => {
+            row.toggleHovered(true);
+          }
+          }
+          onMouseLeave={() => {
+            row.toggleHovered(false);
+          }}
+          onClick={() => {
+            setRowSelection({ [row.id]: !row.getIsSelected() });
+            (table as any).resetAddInput();
+          }}
+        >
           {row.getVisibleCells().map((cell) => (
             <TableCell key={cell.id}>
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
             </TableCell>
           ))}
         </TableRow>
-        {row.getIsExpanded() && row.subRows && renderRows(row.subRows)} {/* Rendu des sous-lignes si expansées */}
+        {
+          // aucun row n'est selectionné  ? 
+          table.getSelectedRowModel().rows.length > 0 ? null : row.getShowInput() &&
+
+            <div>test</div>}
+        {row.getIsExpanded() && row.subRows && renderRows(row.subRows as HoveringRow<HierarchicalItem>[])} {/* Rendu des sous-lignes si expansées */}
       </React.Fragment>
     ));
   };
@@ -150,7 +185,15 @@ export function DataTableDemo({ columns, data, roots }: { columns: ColumnDef<Hie
             {/* {table.getRowModel().rows?.filter(row => row.original.depth === 0).map((row) => (
               <HierarchicalRow key={row.id} child={row.original} row={row} depth={0} table={table} />
             ))} */}
-            {renderRows(table.getRowModel().rows)}
+            {table.getRowModel().rows?.length ? (
+              renderRows(table.getRowModel().rows as HoveringRow<HierarchicalItem>[])
+            ) : (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
 
           </TableBody>
         </Table>
