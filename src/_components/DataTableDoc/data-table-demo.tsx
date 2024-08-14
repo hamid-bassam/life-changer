@@ -6,6 +6,7 @@ import {
 import {
   ColumnDef,
   ColumnFiltersState,
+  Row,
   SortingState,
   Table as TableType,
   VisibilityState,
@@ -42,6 +43,7 @@ export function DataTableDemo({ columns, data, roots }: { columns: ColumnDef<Hie
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
 
+
   const table = useReactTable({
     data,
     columns,
@@ -53,6 +55,7 @@ export function DataTableDemo({ columns, data, roots }: { columns: ColumnDef<Hie
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    filterFromLeafRows: true,
     state: {
       sorting,
       columnFilters,
@@ -60,9 +63,26 @@ export function DataTableDemo({ columns, data, roots }: { columns: ColumnDef<Hie
       rowSelection,
     },
     getRowId: (row) => row.id,
+    getSubRows: (row) => row.children,
   })
-  const row = table.getRowModel().rows;
-  console.log('rows', row);
+  const rows = table.getRowModel().rows;
+  console.log('rows', rows);
+
+
+  const renderRows = (rows: Row<HierarchicalItem>[]) => {
+    return rows.map((row) => (
+      <React.Fragment key={row.id}>
+        <TableRow>
+          {row.getVisibleCells().map((cell) => (
+            <TableCell key={cell.id}>
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </TableCell>
+          ))}
+        </TableRow>
+        {row.getIsExpanded() && row.subRows && renderRows(row.subRows)} {/* Rendu des sous-lignes si expansées */}
+      </React.Fragment>
+    ));
+  };
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
@@ -122,7 +142,16 @@ export function DataTableDemo({ columns, data, roots }: { columns: ColumnDef<Hie
             ))}
           </TableHeader>
           <TableBody>
-            {roots.map((item) => <HierarchicalRow key={item.id} child={item} depth={0} table={table} />)}
+            {/* {roots.map((item) => <HierarchicalRow key={item.id} child={item} depth={0} table={table} />)} */}
+            {/* {table.getRowModel().rows.map((row) => (
+              <HierarchicalRow key={row.id} child={row.original} depth={0} table={table} />
+            ))} */}
+            {/* {renderRows(roots)} */}
+            {/* {table.getRowModel().rows?.filter(row => row.original.depth === 0).map((row) => (
+              <HierarchicalRow key={row.id} child={row.original} row={row} depth={0} table={table} />
+            ))} */}
+            {renderRows(table.getRowModel().rows)}
+
           </TableBody>
         </Table>
       </div>
@@ -154,8 +183,9 @@ export function DataTableDemo({ columns, data, roots }: { columns: ColumnDef<Hie
   )
 }
 
-const HierarchicalRow = ({ child, depth, table }: { child: HierarchicalItem, depth: number, table: TableType<HierarchicalItem> }) => {
-  const row = table.getRow(child.id);
+const HierarchicalRow = ({ child, depth, table, row }: { child: HierarchicalItem, depth: number, table: TableType<HierarchicalItem>, row: Row<HierarchicalItem> }) => {
+  // const row = table.getRow(child.id);
+  // const row = table.getRowModel().rowsById[child.id];
   return (
     <React.Fragment key={child.id}>
       <TableRow data-state={row.getIsSelected() && "selected"}>
@@ -168,12 +198,13 @@ const HierarchicalRow = ({ child, depth, table }: { child: HierarchicalItem, dep
           </TableCell>
         ))}
       </TableRow>
-      {row.getIsExpanded() && child.children?.map((child) => (
+      {row.getIsExpanded() && row.subRows?.map((subrow) => (
         <HierarchicalRow
-          key={child.id}
-          child={child}
+          key={subrow.id}
+          child={subrow.original}
           depth={depth + 1}
           table={table}
+          row={subrow}
         />
       ))}
 
