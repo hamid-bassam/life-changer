@@ -9,6 +9,7 @@ export type RowHoveringState = Record<string, boolean>;
 export interface HoveringTableState {
   rowHovering?: RowHoveringState;
   rowAddInput?: RowHoveringState;
+
 }
 
 export interface HoveringTableAPI<TData> {

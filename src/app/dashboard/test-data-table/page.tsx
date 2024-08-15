@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { columns } from "../../../_components/DataTableDoc/columns";
 import { DataTableDemo } from "../../../_components/DataTableDoc/data-table-demo";
 import { TreeBuilder } from "../../../_components/TreeBuilder";
+import { flattenTree } from "../../../lib/hierachy-utils";
 
 export default function TestDataTablePage() {
 
@@ -15,7 +16,7 @@ export default function TestDataTablePage() {
 
         <div className="container mx-auto py-10">
           <TreeBuilder >
-            {({ tree }) => <DataTableDemo columns={columns} data={(tree)} roots={tree} />}
+            {({ tree }) => <DataTableDemo columns={columns} data={flattenTree(tree)} roots={tree} />}
           </TreeBuilder>
         </div>
       </Suspense>

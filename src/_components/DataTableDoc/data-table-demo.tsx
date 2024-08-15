@@ -57,7 +57,7 @@ export function DataTableDemo({ columns, data, roots }: { columns: ColumnDef<Hie
   const [rowSelection, setRowSelection] = React.useState({})
 
   const columnsMemo = useMemo(() => columns, []);
-  const [dataMemo, setDataMemo] = React.useState<HierarchicalItem[]>(data);
+  const [dataMemo, setDataMemo] = React.useState<HierarchicalItem[]>(roots);
   const table = useReactTable({
     data: dataMemo,
     columns: columnsMemo,
@@ -76,10 +76,15 @@ export function DataTableDemo({ columns, data, roots }: { columns: ColumnDef<Hie
       columnVisibility,
       rowSelection,
     },
+
+    enableMultiRowSelection: true,
+
+
+
     getRowId: (row) => row.id,
     getSubRows: (row) => row.children,
     _features: [HoveringFeature],
-  }) as HoveringTable<HierarchicalItem>;
+  })
 
 
 
@@ -99,8 +104,9 @@ export function DataTableDemo({ columns, data, roots }: { columns: ColumnDef<Hie
             row.toggleHovered(false);
           }}
           onClick={() => {
-            setRowSelection({ [row.id]: !row.getIsSelected() });
-            (table as any).resetAddInput();
+            // setRowSelection({ [row.id]: !row.getIsSelected() });
+            row.toggleSelected(!row.getIsSelected(), { selectChildren: true });
+            (table as HoveringTable<HierarchicalItem>).resetAddInput();
           }}
         >
           {row.getVisibleCells().map((cell) => (
@@ -119,7 +125,7 @@ export function DataTableDemo({ columns, data, roots }: { columns: ColumnDef<Hie
     ));
   };
   return (
-    <div className="w-full">
+    <div className="w-full ">
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter title..."
@@ -157,7 +163,7 @@ export function DataTableDemo({ columns, data, roots }: { columns: ColumnDef<Hie
         </DropdownMenu>
       </div>
       <div className="rounded-md border">
-        <Table>
+        <Table  >
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -200,8 +206,8 @@ export function DataTableDemo({ columns, data, roots }: { columns: ColumnDef<Hie
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+          {table.getFilteredSelectedRowModel().flatRows.length} of{" "}
+          {table.getRowModel().flatRows.length} row(s) selected.
         </div>
         <div className="space-x-2">
           <Button

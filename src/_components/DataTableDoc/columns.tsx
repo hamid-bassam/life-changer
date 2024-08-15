@@ -3,9 +3,11 @@
 import { CaretSortIcon, DotsHorizontalIcon } from "@radix-ui/react-icons"
 import { ColumnDef } from "@tanstack/react-table"
 import { ChevronDown, ChevronRight, Goal, Paperclip, PenSquare, Plus } from "lucide-react"
+import { useState } from "react"
 import { Button } from "../../components/ui/button"
 import { Checkbox } from "../../components/ui/checkbox"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../../components/ui/dropdown-menu"
+import { Input } from "../../components/ui/input"
 import { HierarchicalItem, ItemType } from "../../types/hierarchy"
 import { HoveringRow, HoveringTable } from "./data-table-demo"
 
@@ -25,7 +27,14 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
             table.getIsAllPageRowsSelected() ||
             (table.getIsSomePageRowsSelected() && "indeterminate")
           }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          onCheckedChange={(value) =>
+            table.toggleAllPageRowsSelected(!!value)
+
+            // table set state selection for each row to !rows.getisSelected()
+
+            //table.getRowModel().flatRows.forEach(row => row.toggleSelected(!row.getIsSelected(), { selectChildren: true }))
+          }
+
           aria-label="Select all"
         />
       </div>
@@ -34,13 +43,14 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
       <div className="flex items-center justify-center">
         <Checkbox
           checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          onCheckedChange={(value) => row.toggleSelected(!!value, { selectChildren: true })}
           aria-label="Select row"
         />
       </div>
     ),
     enableSorting: false,
     enableHiding: false,
+
   },
 
   {
@@ -104,7 +114,7 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
                 className="w-4 h-4 p-0.5"
                 disabled={!hoveringRow.getIsHovered()}>
 
-                {hoveringRow.getIsHovered() ? <Plus className="w-full h-full" /> : <span className="inline-block h-4 w-4" />}
+                {hoveringRow.getIsHovered() ? <Plus className="w-full h-full " /> : <span className="inline-block h-4 w-4" />}
 
               </Button>
 
@@ -124,6 +134,7 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
   },
   {
     accessorKey: "title",
+
     header: ({ column }) => {
       return (
         <Button
@@ -135,7 +146,38 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
         </Button>
       )
     },
-    cell: ({ row }) => <div className="lowercase">{row.getValue("title")}</div>,
+    cell: ({ row }) => {
+      const [title, setTitle] = useState<string>(row.getValue("title"));
+      const [isEditing, setIsEditing] = useState(false);
+
+      const handleSave = () => {
+        setIsEditing(false);
+        // Ajouter la logique de mise à jour ici (par ex. appel API pour sauvegarder le nouveau titre)
+        console.log("Updated Title:", title);
+      };
+
+      return isEditing ? (
+        <div className="flex items-center"
+          onClick={(e) => e.stopPropagation()}>
+          <Input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full"
+            onBlur={handleSave}
+            autoFocus
+            onKeyDown={(e) => e.key === "Enter" && handleSave()}
+          />
+        </div>
+      ) : (
+        <div className="flex items-center justify-between"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span onClick={() => setIsEditing(true)} className="cursor-text">
+            {title}
+          </span>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "importance",
