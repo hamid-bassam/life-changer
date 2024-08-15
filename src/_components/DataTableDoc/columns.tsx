@@ -100,9 +100,9 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
               </Button>
 
               {row.getValue("type") === ItemType.GOAL ?
-                <Goal className="h-5 w-5" /> : row.getValue("type") === ItemType.NOTE ?
-                  <PenSquare className="h-5 w-5" /> : row.getValue("type") === ItemType.TASK ?
-                    <Paperclip className="h-5 w-5" /> : null
+                <Goal className="h-4 w-4" /> : row.getValue("type") === ItemType.NOTE ?
+                  <PenSquare className="h-4 w-4" /> : row.getValue("type") === ItemType.TASK ?
+                    <Paperclip className="h-4 w-4" /> : null
               }
               <Button
                 onClick={handleAddInputClick}
@@ -140,6 +140,7 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
         setIsEditing(false);
         await updateItem(row.original, { title: title });
         console.log('saved in db', title);
+        (table.options.meta as any).updateHierarchicalRoots(row.id, { title: title });
         toast.success('Saved');
       };
 
@@ -169,11 +170,12 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
   {
     accessorKey: "status",
     header: () => <div className="text-center" >Status</div>,
-    cell: ({ row }) => {
+    cell: ({ row, table }) => {
       const [status, setStatus] = useState<string>(row.getValue("status"));
       const HandleValueChange = async (value: string) => {
         setStatus(value);
         await updateItem(row.original, { status: value });
+        (table.options.meta as any).updateHierarchicalRoots(row.id, { status: value });
         toast.success('Saved Status');
       }
       if (row.original.type === ItemType.NOTE) return;
@@ -216,7 +218,7 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
         </div>
       )
     },
-    cell: ({ row }) => {
+    cell: ({ row, table }) => {
 
       const importance = row.getValue("importance") as number;
       const [state, setState] = useState<
@@ -237,7 +239,10 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
           isCustom: importance === PriorityEnum.CUSTOM,
           customValue: importance,
         });
-        importance !== PriorityEnum.CUSTOM && await updateItem(row.original, { importance: importance });
+        if (importance !== PriorityEnum.CUSTOM) {
+          await updateItem(row.original, { importance: importance });
+          (table.options.meta as any).updateHierarchicalRoots(row.id, { importance: importance });
+        }
       };
 
       if (row.original.type === ItemType.NOTE) return;
@@ -272,8 +277,13 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
                 step={5}
                 max={100}
                 onValueChange={(value) => setState((prev) => ({ ...prev, customValue: value[0] }))}
-                onMouseOutCapture={async () => await updateItem(row.original, { importance: state.customValue })}
+                onMouseOutCapture={async (e) => {
+                  e.stopPropagation();
+                  await updateItem(row.original, { importance: state.customValue });
+                  (table.options.meta as any).updateHierarchicalRoots(row.id, { importance: state.customValue });
+                }}
                 onClick={(e) => e.stopPropagation()}
+                onMouseUp={(e) => e.stopPropagation()}
               />
             )
           }

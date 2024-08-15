@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/table"
 import { useMemo } from "react"
 import { HierarchicalItem } from "../../types/hierarchy"
+import { AddInputRow } from "./AddInputRow"
 import { HoveringFeature } from "./tanstack-table-hovering"
 export type HoveringRow<TData> = Row<TData> & {
   toggleHovered: (toggle?: boolean) => void;
@@ -49,8 +50,49 @@ export interface HoveringTable<TData> extends TableType<TData> {
   getHoveredRows: () => HoveringRow<TData>[];
   setHoveredRows: (updater: (old: HoveringRow<TData>[]) => HoveringRow<TData>[]) => void;
 }
+function updateData(roots: HierarchicalItem[], id: string, newRecord: any): HierarchicalItem[] {
+  return roots.map((item) => {
+    // Si l'item correspond à l'ID, on retourne un nouvel item avec les nouvelles données
+    if (item.id === id) {
+      return {
+        ...item,
+        ...newRecord,  // Applique les modifications
+      };
+    }
 
-export function DataTableDemo({ columns, data, roots }: { columns: ColumnDef<HierarchicalItem>[], data: HierarchicalItem[], roots: HierarchicalItem[] }) {
+    // Si l'item a des enfants, on les traite récursivement
+    if (item.children) {
+      return {
+        ...item,
+        children: updateData(item.children, id, newRecord) // Appliquer récursivement aux enfants
+      };
+    }
+
+    // Si aucune modification n'a été apportée, on retourne l'item tel quel
+    return item;
+  });
+}
+function addNewItem(roots: HierarchicalItem[], parentId: string, newItem: HierarchicalItem): HierarchicalItem[] {
+  return roots.map((item) => {
+    if (item.id === parentId) {
+      // Ajouter le nouvel élément en tant qu'enfant
+      return {
+        ...item,
+        children: [...(item.children || []), newItem], // Ajouter le nouveau child
+      };
+    }
+
+    if (item.children) {
+      return {
+        ...item,
+        children: addNewItem(item.children, parentId, newItem), // Recurse dans les enfants
+      };
+    }
+
+    return item; // Aucun changement, retourner l'élément tel quel
+  });
+}
+export function DataTableDemo({ columns, data, roots, userId }: { columns: ColumnDef<HierarchicalItem>[], data: HierarchicalItem[], roots: HierarchicalItem[], userId: string }) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -69,6 +111,8 @@ export function DataTableDemo({ columns, data, roots }: { columns: ColumnDef<Hie
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    getRowId: (row) => row.id,
+    getSubRows: (row) => row.children,
     filterFromLeafRows: true,
     state: {
       sorting,
@@ -76,14 +120,17 @@ export function DataTableDemo({ columns, data, roots }: { columns: ColumnDef<Hie
       columnVisibility,
       rowSelection,
     },
-
     enableMultiRowSelection: true,
-
-
-
-    getRowId: (row) => row.id,
-    getSubRows: (row) => row.children,
     _features: [HoveringFeature],
+    meta: {
+      updateHierarchicalRoots: (rowId: string, data: any) => {
+        setDataMemo((prevData) => updateData(prevData, rowId, data));
+      },
+      addInput: (parentId: string, newItem: HierarchicalItem) => {
+        setDataMemo((prevData) => addNewItem(prevData, parentId, newItem)
+        );
+      },
+    }
   })
 
 
@@ -118,8 +165,11 @@ export function DataTableDemo({ columns, data, roots }: { columns: ColumnDef<Hie
         {
           // aucun row n'est selectionné  ? 
           table.getSelectedRowModel().rows.length > 0 ? null : row.getShowInput() &&
+            // $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+            <AddInputRow table={table} row={row} userId={userId} />
 
-            <div>test</div>}
+          // ========================================================================      
+        }
         {row.getIsExpanded() && row.subRows && renderRows(row.subRows as HoveringRow<HierarchicalItem>[])} {/* Rendu des sous-lignes si expansées */}
       </React.Fragment>
     ));

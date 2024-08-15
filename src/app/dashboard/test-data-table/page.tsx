@@ -9,6 +9,8 @@ import { flattenTree } from "../../../lib/hierachy-utils";
 
 export default function TestDataTablePage() {
 
+
+
   return (
     <>
 
@@ -16,7 +18,7 @@ export default function TestDataTablePage() {
 
         <div className="container mx-auto py-10">
           <TreeBuilder >
-            {({ tree }) => <DataTableDemo columns={columns} data={flattenTree(tree)} roots={tree} />}
+            {({ tree, userId }) => <DataTableDemo columns={columns} data={flattenTree(tree)} roots={tree} userId={userId} />}
           </TreeBuilder>
         </div>
       </Suspense>
