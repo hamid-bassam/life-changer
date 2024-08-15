@@ -4,11 +4,19 @@ import { CaretSortIcon, DotsHorizontalIcon } from "@radix-ui/react-icons"
 import { ColumnDef } from "@tanstack/react-table"
 import { ChevronDown, ChevronRight, Goal, Paperclip, PenSquare, Plus } from "lucide-react"
 import { useState } from "react"
+import { toast } from "sonner"
+import { updateItem } from "../../actions/data-table-actions"
+import { Badge } from "../../components/ui/badge"
 import { Button } from "../../components/ui/button"
 import { Checkbox } from "../../components/ui/checkbox"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../../components/ui/dropdown-menu"
 import { Input } from "../../components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
+import { Slider } from "../../components/ui/slider"
+import { cn } from "../../lib/utils"
 import { HierarchicalItem, ItemType } from "../../types/hierarchy"
+import { getSliderGradientClass } from "../Goal/CustomGoalPriority"
+import { mapPriorityIntToString, mapPriorityStringToInt, PriorityEnum } from "../Goal/GoalInputUtils"
 import { HoveringRow, HoveringTable } from "./data-table-demo"
 
 // This type is used to define the shape of our data.
@@ -29,12 +37,7 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
           }
           onCheckedChange={(value) =>
             table.toggleAllPageRowsSelected(!!value)
-
-            // table set state selection for each row to !rows.getisSelected()
-
-            //table.getRowModel().flatRows.forEach(row => row.toggleSelected(!row.getIsSelected(), { selectChildren: true }))
           }
-
           aria-label="Select all"
         />
       </div>
@@ -67,11 +70,8 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
         event.stopPropagation();
         console.log("Button clicked in row:", row.original);
         console.log('clicked plus', row.getValue('title'));
-
         hoveringRow.addInput();
         table.resetRowSelection(true); // Deselect all rows
-
-
       };
 
       const handleExpandClick = (event: React.MouseEvent) => {
@@ -83,13 +83,10 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
       }
       return (
         <div className="flex items-center ">
-
           <div style={{ paddingLeft: (item.depth ?? 0) * 20 }} className="capitalize">
             <div className="flex items-center justify-center gap-1">
-
               <Button
                 variant={"ghost"}
-
                 onClick={handleExpandClick}
                 aria-hidden={!hasChildren}
                 disabled={!hasChildren}
@@ -107,17 +104,13 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
                   <PenSquare className="h-5 w-5" /> : row.getValue("type") === ItemType.TASK ?
                     <Paperclip className="h-5 w-5" /> : null
               }
-
               <Button
                 onClick={handleAddInputClick}
                 variant="ghost"
                 className="w-4 h-4 p-0.5"
                 disabled={!hoveringRow.getIsHovered()}>
-
                 {hoveringRow.getIsHovered() ? <Plus className="w-full h-full " /> : <span className="inline-block h-4 w-4" />}
-
               </Button>
-
             </div>
           </div>
         </div >
@@ -125,13 +118,7 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
     }
   },
 
-  {
-    accessorKey: "status",
-    header: () => <div className="text-center" >Status</div>,
-    cell: ({ row }) => (
-      <div className="text-center capitalize">{row.getValue("status")}</div>
-    ),
-  },
+
   {
     accessorKey: "title",
 
@@ -146,14 +133,14 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
         </Button>
       )
     },
-    cell: ({ row }) => {
+    cell: ({ row, table }) => {
       const [title, setTitle] = useState<string>(row.getValue("title"));
       const [isEditing, setIsEditing] = useState(false);
-
-      const handleSave = () => {
+      const handleSave = async () => {
         setIsEditing(false);
-        // Ajouter la logique de mise à jour ici (par ex. appel API pour sauvegarder le nouveau titre)
-        console.log("Updated Title:", title);
+        await updateItem(row.original, { title: title });
+        console.log('saved in db', title);
+        toast.success('Saved');
       };
 
       return isEditing ? (
@@ -165,7 +152,7 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
             className="w-full"
             onBlur={handleSave}
             autoFocus
-            onKeyDown={(e) => e.key === "Enter" && handleSave()}
+            onKeyDown={async (e) => e.key === "Enter" && await handleSave()}
           />
         </div>
       ) : (
@@ -178,6 +165,40 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
         </div>
       );
     },
+  },
+  {
+    accessorKey: "status",
+    header: () => <div className="text-center" >Status</div>,
+    cell: ({ row }) => {
+      const [status, setStatus] = useState<string>(row.getValue("status"));
+      const HandleValueChange = async (value: string) => {
+        setStatus(value);
+        await updateItem(row.original, { status: value });
+        toast.success('Saved Status');
+      }
+      if (row.original.type === ItemType.NOTE) return;
+
+      return (
+        <div className="flex items-center justify-center">
+          <Select
+
+            value={status}
+            onValueChange={HandleValueChange}
+
+          >
+            <SelectTrigger className="max-w-fit">
+              <SelectValue placeholder="Select Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Pending"><Badge className="w-24">Pending</Badge></SelectItem>
+              <SelectItem value="In Progress"><Badge className="bg-sky-300 w-24">In Progress</Badge></SelectItem>
+              <SelectItem value="Completed"><Badge className="bg-lime-500 w-24">Completed</Badge></SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )
+    }
+
   },
   {
     accessorKey: "importance",
@@ -197,10 +218,72 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
     },
     cell: ({ row }) => {
 
+      const importance = row.getValue("importance") as number;
+      const [state, setState] = useState<
+        {
+          isCustom: boolean,
+          customValue: number
+        }
+      >(
+        {
+          isCustom: !(importance === PriorityEnum.LOW || importance === PriorityEnum.MEDIUM || importance === PriorityEnum.HIGH),
+          customValue: importance
+        });
 
-      return <div className="font-medium text-center">{row.getValue("importance")}</div>
-    },
+      const handleValueChange = async (e: string) => {
+        const importance = mapPriorityStringToInt(e);
+        setState({
+          ...state,
+          isCustom: importance === PriorityEnum.CUSTOM,
+          customValue: importance,
+        });
+        importance !== PriorityEnum.CUSTOM && await updateItem(row.original, { importance: importance });
+      };
+
+      if (row.original.type === ItemType.NOTE) return;
+
+      return (
+        <div className={cn("flex flex-col gap-1", state.isCustom ? "" : "w-24")}>
+          <div className="flex items-center justify-center">
+            <Select
+              defaultValue={PriorityEnum[state.customValue]}
+              value={mapPriorityIntToString(state.customValue)}
+              onValueChange={handleValueChange}
+            >
+              <SelectTrigger
+                onClick={(e) => e.stopPropagation()}
+              >
+                <SelectValue placeholder="Select priority" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="LOW">Low</SelectItem>
+                <SelectItem value="MEDIUM">Medium</SelectItem>
+                <SelectItem value="HIGH">High</SelectItem>
+                <SelectItem value="CUSTOM">Custom</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {
+            state.isCustom && (
+
+              <Slider
+                rangeColor={getSliderGradientClass(state.customValue)}
+                value={[state.customValue]}
+                step={5}
+                max={100}
+                onValueChange={(value) => setState((prev) => ({ ...prev, customValue: value[0] }))}
+                onMouseOutCapture={async () => await updateItem(row.original, { importance: state.customValue })}
+                onClick={(e) => e.stopPropagation()}
+              />
+            )
+          }
+        </div>
+
+
+      )
+    }
   },
+
   {
     id: "actions",
     enableHiding: false,

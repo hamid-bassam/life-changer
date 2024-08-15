@@ -17,7 +17,7 @@ import { Control, FieldPath, FieldValues } from "react-hook-form";
 import { Slider } from "../../components/ui/slider";
 import { mapPriorityIntToString, mapPriorityStringToInt, PriorityEnum } from "./GoalInputUtils";
 
-const getSliderGradientClass = (value: number) => {
+export const getSliderGradientClass = (value: number) => {
   if (value <= 20) {
     return `bg-gradient-to-r from-cyan-200 to-emerald-300`;
   } else if (value <= 40) {
