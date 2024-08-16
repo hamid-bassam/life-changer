@@ -2,7 +2,7 @@
 
 import { CaretSortIcon, DotsHorizontalIcon } from "@radix-ui/react-icons"
 import { ColumnDef } from "@tanstack/react-table"
-import { ChevronDown, ChevronRight, Goal, Paperclip, PenSquare, Plus } from "lucide-react"
+import { ChevronDown, ChevronRight, CircleCheckBig, Goal, PenSquare, Plus } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 import { updateItem } from "../../actions/data-table-actions"
@@ -30,7 +30,7 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
     id: "select",
     accessorKey: "id",
     header: ({ table }) => (
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center pr-2">
         <Checkbox
           checked={
             table.getIsAllPageRowsSelected() ||
@@ -46,7 +46,7 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <div className="flex items-center justify-center ">
+      <div className="flex items-center justify-center pr-2 ">
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value, { selectChildren: true })}
@@ -106,7 +106,7 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
               {row.getValue("type") === ItemType.GOAL ?
                 <Goal className="h-4 w-4" /> : row.getValue("type") === ItemType.NOTE ?
                   <PenSquare className="h-4 w-4" /> : row.getValue("type") === ItemType.TASK ?
-                    <Paperclip className="h-4 w-4" /> : null
+                    <CircleCheckBig className="h-4 w-4" /> : null
               }
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -121,7 +121,7 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuItem onClick={(e) => handleAddInputClick(e, ItemType.GOAL)}><Goal className="h-4 w-4" /></DropdownMenuItem>
-                  <DropdownMenuItem onClick={(e) => handleAddInputClick(e, ItemType.TASK)}><Paperclip className="h-4 w-4" /></DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => handleAddInputClick(e, ItemType.TASK)}><CircleCheckBig className="h-4 w-4" /></DropdownMenuItem>
                   <DropdownMenuItem onClick={(e) => handleAddInputClick(e, ItemType.NOTE)}><PenSquare className="h-4 w-4" /></DropdownMenuItem>
 
                 </DropdownMenuContent>
@@ -161,12 +161,12 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
       };
 
       return isEditing ? (
-        <div className="flex items-center"
+        <div className="flex w-full flex-1 flex-grow items-center"
           onClick={(e) => e.stopPropagation()}>
           <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full"
+            className="w-full h-full text-xs"
             onBlur={handleSave}
             autoFocus
             onKeyDown={async (e) => e.key === "Enter" && await handleSave()}
@@ -176,7 +176,7 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
         <div className="flex items-center justify-between"
           onClick={(e) => e.stopPropagation()}
         >
-          <span onClick={() => setIsEditing(true)} className="cursor-text">
+          <span onClick={() => setIsEditing(true)} className="cursor-text text-xs">
             {title}
           </span>
         </div>
@@ -204,7 +204,7 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
             onValueChange={HandleValueChange}
 
           >
-            <SelectTrigger className="max-w-fit">
+            <SelectTrigger className="max-w-fit text-xs h-5">
               <SelectValue placeholder="Select Status" />
             </SelectTrigger>
             <SelectContent>
@@ -224,7 +224,7 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
       return (
 
         <Button
-          className="flex w-full font-semibold text-xs"
+          className="flex w-fit font-semibold text-xs"
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
 
@@ -265,26 +265,28 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
       if (row.original.type === ItemType.NOTE) return;
 
       return (
-        <div className={cn("flex flex-col gap-1", state.isCustom ? "" : "w-24")}>
-          <div className="flex items-center justify-center">
-            <Select
-              defaultValue={PriorityEnum[state.customValue]}
-              value={mapPriorityIntToString(state.customValue)}
-              onValueChange={handleValueChange}
+        <div className={cn("flex flex-col gap-1 m-auto w-24")}>
+
+          <Select
+            defaultValue={PriorityEnum[state.customValue]}
+            value={mapPriorityIntToString(state.customValue)}
+            onValueChange={handleValueChange}
+
+          >
+            <SelectTrigger
+              onClick={(e) => e.stopPropagation()}
+              className=" text-xs h-5"
             >
-              <SelectTrigger
-                onClick={(e) => e.stopPropagation()}
-              >
-                <SelectValue placeholder="Select priority" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="LOW">Low</SelectItem>
-                <SelectItem value="MEDIUM">Medium</SelectItem>
-                <SelectItem value="HIGH">High</SelectItem>
-                <SelectItem value="CUSTOM">Custom</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+              <SelectValue placeholder="Select priority" className="" />
+            </SelectTrigger>
+            <SelectContent className="text-xs ">
+              <SelectItem value="LOW">Low</SelectItem>
+              <SelectItem value="MEDIUM">Medium</SelectItem>
+              <SelectItem value="HIGH">High</SelectItem>
+              <SelectItem value="CUSTOM">Custom</SelectItem>
+            </SelectContent>
+          </Select>
+
           {
             state.isCustom && (
 

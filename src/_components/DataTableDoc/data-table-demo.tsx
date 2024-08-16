@@ -141,6 +141,8 @@ export function DataTableDemo({ columns, data, roots, userId }: { columns: Colum
     return rows.map((row) => (
       <React.Fragment key={row.id}>
         <TableRow
+
+          draggable
           // hover que pour le row mais pas les sous-lignes
           data-state={row.getIsSelected() && "selected"}
           onMouseEnter={() => {
@@ -157,8 +159,7 @@ export function DataTableDemo({ columns, data, roots, userId }: { columns: Colum
           }}
         >
           {row.getVisibleCells().map((cell) => (
-            <TableCell key={cell.id} className="border
-            ">
+            <TableCell key={cell.id} className="border py-0">
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
             </TableCell>
           ))}
@@ -178,8 +179,8 @@ export function DataTableDemo({ columns, data, roots, userId }: { columns: Colum
     ));
   };
   return (
-    <div className="w-full !text-xs">
-      <div className="flex items-center py-4">
+    <div className="w-full !text-xs flex flex-col justify-center items-center">
+      <div className="flex w-full items-center py-4">
         <Input
           placeholder="Filter title..."
           value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
@@ -215,7 +216,7 @@ export function DataTableDemo({ columns, data, roots, userId }: { columns: Colum
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="rounded-md border">
+      <div className="rounded-md border w-full">
         <Table >
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -259,7 +260,7 @@ export function DataTableDemo({ columns, data, roots, userId }: { columns: Colum
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
+      <div className="flex items-center justify-end space-x-2 py-4 w-full">
         <div className="flex-1 text-sm text-muted-foreground">
           {table.getFilteredSelectedRowModel().flatRows.length} of{" "}
           {table.getRowModel().flatRows.length} row(s) selected.
