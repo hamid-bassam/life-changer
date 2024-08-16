@@ -8,6 +8,7 @@ import { Spinner } from "@nextui-org/react";
 import { Row } from "@tanstack/react-table";
 import { toast } from "sonner";
 import { createItemm } from "../../actions/data-table-actions";
+import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { TableCell, TableRow } from "../../components/ui/table";
@@ -16,7 +17,7 @@ import { getSliderGradientClass } from "../Goal/CustomGoalPriority";
 import { mapPriorityStringToInt, PriorityEnum } from "../Goal/GoalInputUtils";
 import { HoveringTable } from "./data-table-demo";
 
-export const AddInputRow = ({ table, row, userId }: { table: any, row: Row<HierarchicalItem>, userId: string }) => {
+export const AddInputRow = ({ table, row, userId, type }: { table: any, row: Row<HierarchicalItem>, userId: string, type: string }) => {
 
   const [state, setState] = useState<
     {
@@ -28,7 +29,7 @@ export const AddInputRow = ({ table, row, userId }: { table: any, row: Row<Hiera
       type: ItemType,
       isSubmitting: boolean
     }
-  >({ title: '', isSubmitting: false, type: ItemType.GOAL, importance: 0 });
+  >({ title: '', isSubmitting: false, type: type as ItemType, importance: 0 });
 
   function mapStringToItemType(value: string): ItemType {
     switch (value) {
@@ -50,17 +51,19 @@ export const AddInputRow = ({ table, row, userId }: { table: any, row: Row<Hiera
 
       {/* Colonne Select Type (Goal, Task, Note) */}
       <TableCell>
-        <Select onValueChange={(value) => {
-          console.log(value);
-          setState(prev => ({ ...prev, type: mapStringToItemType(value) }))
-        }}>
+        <Select
+          value={state.type}
+          onValueChange={(value) => {
+            console.log(value);
+            setState(prev => ({ ...prev, type: mapStringToItemType(value) }))
+          }}>
           <SelectTrigger>
             <SelectValue placeholder="Select Type" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={ItemType.GOAL}>Goal</SelectItem>
             <SelectItem value={ItemType.TASK}>Task</SelectItem>
-            <SelectItem value={ItemType.NOTE}>Note</SelectItem>
+            {/* <SelectItem value={ItemType.NOTE}>Note</SelectItem> */}
           </SelectContent>
         </Select>
       </TableCell>
@@ -83,9 +86,9 @@ export const AddInputRow = ({ table, row, userId }: { table: any, row: Row<Hiera
             <SelectValue placeholder="Select Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="PENDING">Pending</SelectItem>
-            <SelectItem value="COMPLETED">Completed</SelectItem>
-            <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+            <SelectItem value="Pending"><Badge className="w-24">Pending</Badge></SelectItem>
+            <SelectItem value="In Progress"><Badge className="bg-sky-300 w-24">In Progress</Badge></SelectItem>
+            <SelectItem value="Completed"><Badge className="bg-lime-500 w-24">Completed</Badge></SelectItem>
           </SelectContent>
         </Select>
       </TableCell>
@@ -100,6 +103,7 @@ export const AddInputRow = ({ table, row, userId }: { table: any, row: Row<Hiera
                 ...prev,
                 isCustom: priority === PriorityEnum.CUSTOM,
                 customValue: priority as number,
+                importance: priority as number
               }));
             }}
           >
@@ -120,7 +124,7 @@ export const AddInputRow = ({ table, row, userId }: { table: any, row: Row<Hiera
                 value={[state.customValue ?? 0]}
                 step={5}
                 max={100}
-                onValueChange={(e) => setState({ ...state, customValue: e[0] })}
+                onValueChange={(e) => setState({ ...state, customValue: e[0], importance: e[0] })}
               />
             </div>
           )}
@@ -131,8 +135,11 @@ export const AddInputRow = ({ table, row, userId }: { table: any, row: Row<Hiera
           setState({ ...state, isSubmitting: true });
           try {
             if (state.type !== "note") {
-              const item = await createItemm(userId, row.original, { type: state.type, title: state.title, status: state.status, importance: state.importance });
-              (table.options.meta as any).addInput(row.id, { ...item, type: state.type });
+              console.log('Creating item' + JSON.stringify(state));
+              const response = await createItemm(userId, row.original, { type: state.type, title: state.title, status: state.status, importance: state.importance });
+              let item: HierarchicalItem | undefined = undefined;
+              if (response) item = { ...response, type: state.type };
+              (table.options.meta as any).addInput(row.id, { ...item, type: state.type, title: item?.title, status: item?.status, importance: item?.importance });
               (table as HoveringTable<HierarchicalItem>).resetAddInput();
               row.toggleExpanded();
               toast.success('Item created', { description: 'Item created successfully' });

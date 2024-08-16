@@ -36,14 +36,14 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { useMemo } from "react"
-import { HierarchicalItem } from "../../types/hierarchy"
+import { HierarchicalItem, ItemType } from "../../types/hierarchy"
 import { AddInputRow } from "./AddInputRow"
 import { HoveringFeature } from "./tanstack-table-hovering"
 export type HoveringRow<TData> = Row<TData> & {
   toggleHovered: (toggle?: boolean) => void;
   getIsHovered: () => boolean;
-  addInput: () => void;
-  getShowInput: () => boolean;
+  addInput: (type: string) => void;
+  getShowInput: () => string;
 };
 export interface HoveringTable<TData> extends TableType<TData> {
   resetAddInput: () => void;
@@ -157,16 +157,19 @@ export function DataTableDemo({ columns, data, roots, userId }: { columns: Colum
           }}
         >
           {row.getVisibleCells().map((cell) => (
-            <TableCell key={cell.id}>
+            <TableCell key={cell.id} className="border
+            ">
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
             </TableCell>
           ))}
         </TableRow>
         {
           // aucun row n'est selectionné  ? 
-          table.getSelectedRowModel().rows.length > 0 ? null : row.getShowInput() &&
+          table.getSelectedRowModel().rows.length > 0 ? null :
             // $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-            <AddInputRow table={table} row={row} userId={userId} />
+
+            row.getShowInput() && row.getShowInput() !== ItemType.NOTE &&
+            <AddInputRow table={table} row={row} userId={userId} type={row.getShowInput()} />
 
           // ========================================================================      
         }
@@ -175,7 +178,7 @@ export function DataTableDemo({ columns, data, roots, userId }: { columns: Colum
     ));
   };
   return (
-    <div className="w-full ">
+    <div className="w-full !text-xs">
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter title..."
@@ -213,19 +216,21 @@ export function DataTableDemo({ columns, data, roots, userId }: { columns: Colum
         </DropdownMenu>
       </div>
       <div className="rounded-md border">
-        <Table  >
+        <Table >
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className="border text-xs font-semibold">
+
                       {header.isPlaceholder
                         ? null
                         : flexRender(
                           header.column.columnDef.header,
                           header.getContext()
                         )}
+
                     </TableHead>
                   )
                 })}

@@ -19,6 +19,7 @@ import { getSliderGradientClass } from "../Goal/CustomGoalPriority"
 import { mapPriorityIntToString, mapPriorityStringToInt, PriorityEnum } from "../Goal/GoalInputUtils"
 import { HoveringRow, HoveringTable } from "./data-table-demo"
 
+
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 
@@ -39,15 +40,18 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
             table.toggleAllPageRowsSelected(!!value)
           }
           aria-label="Select all"
+          className="w-3 h-3 flex items-center justify-center"
+
         />
       </div>
     ),
     cell: ({ row }) => (
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center ">
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value, { selectChildren: true })}
           aria-label="Select row"
+          className="w-3 h-3 flex items-center justify-center"
         />
       </div>
     ),
@@ -58,19 +62,19 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
 
   {
     accessorKey: "type",
-    header: () => <div className="text-center" >Type</div>,
+    header: () => <div className="text-center w-full text-xs font-semibold" >Type</div>,
     cell: ({ row, table }) => {
       const hoveringRow = row as HoveringRow<HierarchicalItem>;
       const item = hoveringRow.original;
 
       const hasChildren = item.children && item.children.length > 0;
 
-      const handleAddInputClick = (event: React.MouseEvent) => {
+      const handleAddInputClick = (event: React.MouseEvent, type: string) => {
         // Empêche la propagation de l'événement à la ligne
         event.stopPropagation();
         console.log("Button clicked in row:", row.original);
         console.log('clicked plus', row.getValue('title'));
-        hoveringRow.addInput();
+        hoveringRow.addInput(type);
         table.resetRowSelection(true); // Deselect all rows
       };
 
@@ -82,9 +86,9 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
         (table as HoveringTable<HierarchicalItem>).resetAddInput();
       }
       return (
-        <div className="flex items-center ">
-          <div style={{ paddingLeft: (item.depth ?? 0) * 20 }} className="capitalize">
-            <div className="flex items-center justify-center gap-1">
+        <div className="flex items-center w-fit ">
+          <div style={{ paddingLeft: (item.depth ?? 0) * 20 }} className="capitalize ">
+            <div className="flex items-center gap-1">
               <Button
                 variant={"ghost"}
                 onClick={handleExpandClick}
@@ -104,13 +108,24 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
                   <PenSquare className="h-4 w-4" /> : row.getValue("type") === ItemType.TASK ?
                     <Paperclip className="h-4 w-4" /> : null
               }
-              <Button
-                onClick={handleAddInputClick}
-                variant="ghost"
-                className="w-4 h-4 p-0.5"
-                disabled={!hoveringRow.getIsHovered()}>
-                {hoveringRow.getIsHovered() ? <Plus className="w-full h-full " /> : <span className="inline-block h-4 w-4" />}
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+
+                  <Button
+                    // onClick={handleAddInputClick}
+                    variant="ghost"
+                    className="w-4 h-4 p-0.5"
+                    disabled={!hoveringRow.getIsHovered()}>
+                    {hoveringRow.getIsHovered() ? <Plus className="w-full h-full " /> : <span className="inline-block h-4 w-4" />}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={(e) => handleAddInputClick(e, ItemType.GOAL)}><Goal className="h-4 w-4" /></DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => handleAddInputClick(e, ItemType.TASK)}><Paperclip className="h-4 w-4" /></DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => handleAddInputClick(e, ItemType.NOTE)}><PenSquare className="h-4 w-4" /></DropdownMenuItem>
+
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div >
@@ -125,11 +140,12 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
     header: ({ column }) => {
       return (
         <Button
+          className="w-full flex font-semibold text-xs"
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Title
-          <CaretSortIcon className="ml-2 h-4 w-4" />
+          <CaretSortIcon className="h-4 w-4 ml-auto " />
         </Button>
       )
     },
@@ -169,7 +185,7 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
   },
   {
     accessorKey: "status",
-    header: () => <div className="text-center" >Status</div>,
+    header: () => <div className="text-center w-full" >Status</div>,
     cell: ({ row, table }) => {
       const [status, setStatus] = useState<string>(row.getValue("status"));
       const HandleValueChange = async (value: string) => {
@@ -206,16 +222,17 @@ export const columns: ColumnDef<HierarchicalItem, any>[] = [
     accessorKey: "importance",
     header: ({ column }) => {
       return (
-        <div className="flex items-center justify-center">
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
 
-          >
-            Importance
-            <CaretSortIcon className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
+        <Button
+          className="flex w-full font-semibold text-xs"
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+
+        >
+          Importance
+          <CaretSortIcon className="ml-auto h-4 w-4" />
+        </Button>
+
       )
     },
     cell: ({ row, table }) => {

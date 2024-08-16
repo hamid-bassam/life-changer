@@ -87,12 +87,12 @@ export const HoveringFeature = {
       }));
 
 
-    (row as RowWithHover).addInput = () => {
+    (row as RowWithHover).addInput = (type: string) => {
       console.log('addInput function called');
       return table.setState((old: TableState & HoveringTableState) => ({
         ...old,
         rowAddInput: {
-          [row.id]: true,
+          [row.id]: type,
         },
       }));
 
@@ -104,7 +104,8 @@ export const HoveringFeature = {
 
 
     (row as RowWithHover).getShowInput = () =>
-      Boolean((table.getState() as HoveringTableState).rowAddInput?.[row.id]);
+      (table.getState() as HoveringTableState).rowAddInput?.[row.id];
+
 
     // table.setState((old: TableState & HoveringTableState) => ({
     //   ...old,

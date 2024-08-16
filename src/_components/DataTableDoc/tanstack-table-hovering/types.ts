@@ -1,10 +1,10 @@
-import type { OnChangeFn, Row, Table, Updater } from "@tanstack/react-table";
+import type { OnChangeFn, Row, Updater } from "@tanstack/react-table";
 
 export interface HoveringOptions {
   onRowHoveringChange?: OnChangeFn<RowHoveringState | undefined>;
 }
 
-export type RowHoveringState = Record<string, boolean>;
+export type RowHoveringState = Record<string, string>;
 
 export interface HoveringTableState {
   rowHovering?: RowHoveringState;
@@ -23,8 +23,8 @@ export interface HoveringTableAPI<TData> {
 export interface HoveringRowAPI {
   getIsHovered(): boolean;
   toggleHovered(toggle?: boolean): void;
-  addInput(): void;
-  getShowInput(): boolean;
+  addInput(type: string): void;
+  getShowInput(): string | undefined;
   resetAddInput(): void;
 
 }
